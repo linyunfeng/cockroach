@@ -25,6 +25,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/util"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 // cascader is used to handle all referential integrity cascading actions.
@@ -218,7 +219,7 @@ func spanForIndexValues(
 			}
 			if nulls && notNulls {
 				// TODO(bram): expand this error to show more details.
-				return roachpb.Span{}, pgerror.Newf(pgerror.CodeForeignKeyViolationError,
+				return roachpb.Span{}, pgerror.Newf(pgcode.ForeignKeyViolation,
 					"foreign key violation: MATCH FULL does not allow mixing of null and nonnull values %s",
 					values,
 				)
@@ -269,7 +270,7 @@ func batchRequestForIndexValues(
 		if found, ok := values.colIDtoRowIndex[referencedColID]; ok {
 			colIDtoRowIndex[referencingIndex.ColumnIDs[i]] = found
 		} else {
-			return roachpb.BatchRequest{}, nil, pgerror.Newf(pgerror.CodeForeignKeyViolationError,
+			return roachpb.BatchRequest{}, nil, pgerror.Newf(pgcode.ForeignKeyViolation,
 				"missing value for column %q in multi-part foreign key", referencedIndex.ColumnNames[i],
 			)
 		}
@@ -868,7 +869,7 @@ func (c *cascader) updateRows(
 									if err != nil {
 										return nil, nil, nil, 0, err
 									}
-									return nil, nil, nil, 0, pgerror.Newf(pgerror.CodeNullValueNotAllowedError,
+									return nil, nil, nil, 0, pgerror.Newf(pgcode.NullValueNotAllowed,
 										"cannot cascade a null value into %q as it violates a NOT NULL constraint",
 										tree.ErrString(tree.NewUnresolvedName(database.Name, tree.PublicSchema, referencingTable.Name, column.Name)))
 								}

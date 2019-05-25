@@ -28,6 +28,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util"
 	"github.com/cockroachdb/cockroach/pkg/util/encoding/csv"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 	"github.com/cockroachdb/cockroach/pkg/util/tracing"
 	"github.com/pkg/errors"
 )
@@ -118,7 +119,7 @@ func exportPlanHook(
 		if override, ok := opts[exportOptionDelimiter]; ok {
 			csvOpts.Comma, err = util.GetSingleRune(override)
 			if err != nil {
-				return pgerror.New(pgerror.CodeInvalidParameterValueError, "invalid delimiter")
+				return pgerror.New(pgcode.InvalidParameterValue, "invalid delimiter")
 			}
 		}
 
@@ -130,10 +131,10 @@ func exportPlanHook(
 		if override, ok := opts[exportOptionChunkSize]; ok {
 			chunk, err = strconv.Atoi(override)
 			if err != nil {
-				return pgerror.New(pgerror.CodeInvalidParameterValueError, err.Error())
+				return pgerror.New(pgcode.InvalidParameterValue, err.Error())
 			}
 			if chunk < 1 {
-				return pgerror.New(pgerror.CodeInvalidParameterValueError, "invalid csv chunk size")
+				return pgerror.New(pgcode.InvalidParameterValue, "invalid csv chunk size")
 			}
 		}
 

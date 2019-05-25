@@ -20,6 +20,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 	"github.com/pkg/errors"
 )
 
@@ -115,7 +116,7 @@ func (p *planner) newUnionNode(
 	rightColumns := planColumns(right)
 	if len(leftColumns) != len(rightColumns) {
 		return nil, pgerror.Newf(
-			pgerror.CodeSyntaxError,
+			pgcode.Syntax,
 			"each %v query must have the same number of columns: %d vs %d",
 			typ, len(leftColumns), len(rightColumns),
 		)
@@ -128,7 +129,7 @@ func (p *planner) newUnionNode(
 		// but Postgres is more lenient:
 		// http://www.postgresql.org/docs/9.5/static/typeconv-union-case.html.
 		if !(l.Typ.Equivalent(r.Typ) || l.Typ.Family() == types.UnknownFamily || r.Typ.Family() == types.UnknownFamily) {
-			return nil, pgerror.Newf(pgerror.CodeDatatypeMismatchError,
+			return nil, pgerror.Newf(pgcode.DatatypeMismatch,
 				"%v types %s and %s cannot be matched", typ, l.Typ, r.Typ)
 		}
 		if l.Hidden != r.Hidden {

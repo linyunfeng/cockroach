@@ -34,6 +34,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -142,7 +143,7 @@ func (n *createStatsNode) startJob(ctx context.Context, resultsCh chan<- tree.Da
 // execute statistics creation.
 func (n *createStatsNode) makeJobRecord(ctx context.Context) (*jobs.Record, error) {
 	if !n.p.ExecCfg().Settings.Version.IsActive(cluster.VersionCreateStats) {
-		return nil, pgerror.Newf(pgerror.CodeObjectNotInPrerequisiteStateError,
+		return nil, pgerror.Newf(pgcode.ObjectNotInPrerequisiteState,
 			`CREATE STATISTICS requires all nodes to be upgraded to %s`,
 			cluster.VersionByKey(cluster.VersionCreateStats),
 		)
@@ -175,13 +176,13 @@ func (n *createStatsNode) makeJobRecord(ctx context.Context) (*jobs.Record, erro
 
 	if tableDesc.IsVirtualTable() {
 		return nil, pgerror.New(
-			pgerror.CodeWrongObjectTypeError, "cannot create statistics on virtual tables",
+			pgcode.WrongObjectType, "cannot create statistics on virtual tables",
 		)
 	}
 
 	if tableDesc.IsView() {
 		return nil, pgerror.New(
-			pgerror.CodeWrongObjectTypeError, "cannot create statistics on views",
+			pgcode.WrongObjectType, "cannot create statistics on views",
 		)
 	}
 

@@ -25,6 +25,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util/ipaddr"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 	"github.com/lib/pq/oid"
 )
 
@@ -123,7 +124,7 @@ func initPGBuiltins() {
 	}
 }
 
-var errUnimplemented = pgerror.New(pgerror.CodeFeatureNotSupportedError, "unimplemented")
+var errUnimplemented = pgerror.New(pgcode.FeatureNotSupported, "unimplemented")
 
 func makeTypeIOBuiltin(argTypes tree.TypeList, returnType *types.T) builtinDefinition {
 	return builtinDefinition{
@@ -263,7 +264,7 @@ func makePGGetConstraintDef(argTypes tree.ArgTypes) tree.Overload {
 				return nil, err
 			}
 			if len(r) == 0 {
-				return nil, pgerror.Newf(pgerror.CodeInvalidParameterValueError, "unknown constraint (OID=%s)", args[0])
+				return nil, pgerror.Newf(pgcode.InvalidParameterValue, "unknown constraint (OID=%s)", args[0])
 			}
 			return r[0], nil
 		},
@@ -350,7 +351,7 @@ func makePGPrivilegeInquiryDef(
 							// found when given an OID.
 							return tree.DBoolFalse, nil
 						}
-						return nil, pgerror.Newf(pgerror.CodeUndefinedObjectError,
+						return nil, pgerror.Newf(pgcode.UndefinedObject,
 							"role %s does not exist", args[0])
 					}
 
@@ -412,7 +413,7 @@ func getTableNameForArg(ctx *tree.EvalContext, arg tree.Datum) (*tree.TableName,
 		if ctx.SessionData.Database != "" && ctx.SessionData.Database != string(tn.CatalogName) {
 			// Postgres does not allow cross-database references in these
 			// functions, so we don't either.
-			return nil, pgerror.Newf(pgerror.CodeFeatureNotSupportedError,
+			return nil, pgerror.Newf(pgcode.FeatureNotSupported,
 				"cross-database references are not implemented: %s", tn)
 		}
 		return tn, nil
@@ -462,7 +463,7 @@ func parsePrivilegeStr(arg tree.Datum, availOpts pgPrivList) (tree.Datum, error)
 	// Check that all privileges are allowed.
 	for _, priv := range privs {
 		if _, ok := availOpts[priv]; !ok {
-			return nil, pgerror.Newf(pgerror.CodeInvalidParameterValueError,
+			return nil, pgerror.Newf(pgcode.InvalidParameterValue,
 				"unrecognized privilege type: %q", priv)
 		}
 	}
@@ -680,7 +681,7 @@ var pgBuiltins = map[string]builtinDefinition{
 					return nil, err
 				}
 				if len(r) == 0 {
-					return nil, pgerror.Newf(pgerror.CodeUndefinedTableError, "unknown sequence (OID=%s)", args[0])
+					return nil, pgerror.Newf(pgcode.UndefinedTable, "unknown sequence (OID=%s)", args[0])
 				}
 				seqstart, seqmin, seqmax, seqincrement, seqcycle, seqcache, seqtypid := r[0], r[1], r[2], r[3], r[4], r[5], r[6]
 				seqcycleStr := "t"
@@ -1014,7 +1015,7 @@ SELECT description
 					WHERE %s AND %s`, pred, colPred), colArg); err != nil {
 					return nil, err
 				} else if r == nil {
-					return nil, pgerror.Newf(pgerror.CodeUndefinedColumnError,
+					return nil, pgerror.Newf(pgcode.UndefinedColumn,
 						"column %s of relation %s does not exist", colArg, tableArg)
 				}
 			}
@@ -1065,7 +1066,7 @@ SELECT description
 			if db == "" {
 				switch dbArg.(type) {
 				case *tree.DString:
-					return nil, pgerror.Newf(pgerror.CodeInvalidCatalogNameError,
+					return nil, pgerror.Newf(pgcode.InvalidCatalogName,
 						"database %s does not exist", dbArg)
 				case *tree.DOid:
 					// Postgres returns NULL if no matching language is found
@@ -1120,7 +1121,7 @@ SELECT description
 			if fdw == "" {
 				switch fdwArg.(type) {
 				case *tree.DString:
-					return nil, pgerror.Newf(pgerror.CodeUndefinedObjectError,
+					return nil, pgerror.Newf(pgcode.UndefinedObject,
 						"foreign-data wrapper %s does not exist", fdwArg)
 				case *tree.DOid:
 					// Unlike most of the functions, Postgres does not return
@@ -1192,7 +1193,7 @@ SELECT description
 			if lang == "" {
 				switch langArg.(type) {
 				case *tree.DString:
-					return nil, pgerror.Newf(pgerror.CodeUndefinedObjectError,
+					return nil, pgerror.Newf(pgcode.UndefinedObject,
 						"language %s does not exist", langArg)
 				case *tree.DOid:
 					// Postgres returns NULL if no matching language is found
@@ -1226,7 +1227,7 @@ SELECT description
 			if schema == "" {
 				switch schemaArg.(type) {
 				case *tree.DString:
-					return nil, pgerror.Newf(pgerror.CodeInvalidSchemaNameError,
+					return nil, pgerror.Newf(pgcode.InvalidSchemaName,
 						"schema %s does not exist", schemaArg)
 				case *tree.DOid:
 					// Postgres returns NULL if no matching schema is found
@@ -1285,7 +1286,7 @@ SELECT description
 					tn.CatalogName, tn.SchemaName, tn.TableName); err != nil {
 					return nil, err
 				} else if r == nil {
-					return nil, pgerror.Newf(pgerror.CodeWrongObjectTypeError,
+					return nil, pgerror.Newf(pgcode.WrongObjectType,
 						"%s is not a sequence", seqArg)
 				}
 
@@ -1332,7 +1333,7 @@ SELECT description
 			if server == "" {
 				switch serverArg.(type) {
 				case *tree.DString:
-					return nil, pgerror.Newf(pgerror.CodeUndefinedObjectError,
+					return nil, pgerror.Newf(pgcode.UndefinedObject,
 						"server %s does not exist", serverArg)
 				case *tree.DOid:
 					// Unlike most of the functions, Postgres does not return
@@ -1436,7 +1437,7 @@ SELECT description
 			if tablespace == "" {
 				switch tablespaceArg.(type) {
 				case *tree.DString:
-					return nil, pgerror.Newf(pgerror.CodeUndefinedObjectError,
+					return nil, pgerror.Newf(pgcode.UndefinedObject,
 						"tablespace %s does not exist", tablespaceArg)
 				case *tree.DOid:
 					// Unlike most of the functions, Postgres does not return

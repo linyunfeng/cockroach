@@ -19,6 +19,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 func initWindowBuiltins() {
@@ -464,7 +465,7 @@ func newNtileWindow([]*types.T, *tree.EvalContext) tree.WindowFunc {
 }
 
 var errInvalidArgumentForNtile = pgerror.Newf(
-	pgerror.CodeInvalidParameterValueError, "argument of ntile() must be greater than zero")
+	pgcode.InvalidParameterValue, "argument of ntile() must be greater than zero")
 
 func (w *ntileWindow) Compute(
 	ctx context.Context, _ *tree.EvalContext, wfr *tree.WindowFrameRun,
@@ -636,7 +637,7 @@ func newNthValueWindow([]*types.T, *tree.EvalContext) tree.WindowFunc {
 }
 
 var errInvalidArgumentForNthValue = pgerror.Newf(
-	pgerror.CodeInvalidParameterValueError, "argument of nth_value() must be greater than zero")
+	pgcode.InvalidParameterValue, "argument of nth_value() must be greater than zero")
 
 func (nthValueWindow) Compute(
 	ctx context.Context, evalCtx *tree.EvalContext, wfr *tree.WindowFrameRun,

@@ -18,6 +18,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 type dropSequenceNode struct {
@@ -102,7 +103,7 @@ func (p *planner) sequenceDependencyError(
 ) error {
 	if len(droppedDesc.DependedOnBy) > 0 {
 		return pgerror.Newf(
-			pgerror.CodeDependentObjectsStillExistError,
+			pgcode.DependentObjectsStillExist,
 			"cannot drop sequence %s because other objects depend on it",
 			droppedDesc.Name,
 		)

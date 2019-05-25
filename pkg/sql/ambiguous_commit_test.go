@@ -24,13 +24,13 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
 	"github.com/cockroachdb/cockroach/pkg/rpc/nodedialer"
 	"github.com/cockroachdb/cockroach/pkg/sql"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sessiondata"
 	"github.com/cockroachdb/cockroach/pkg/storage"
 	"github.com/cockroachdb/cockroach/pkg/testutils"
 	"github.com/cockroachdb/cockroach/pkg/testutils/sqlutils"
 	"github.com/cockroachdb/cockroach/pkg/testutils/testcluster"
 	"github.com/cockroachdb/cockroach/pkg/util/leaktest"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 )
@@ -174,9 +174,9 @@ func TestAmbiguousCommit(t *testing.T) {
 
 		if _, err := sqlDB.Exec(`INSERT INTO test.t (v) VALUES (1)`); ambiguousSuccess {
 			if pqErr, ok := err.(*pq.Error); ok {
-				if pqErr.Code != pgerror.CodeStatementCompletionUnknownError {
+				if pqErr.Code != pgcode.StatementCompletionUnknown {
 					t.Errorf("expected code %q, got %q (err: %s)",
-						pgerror.CodeStatementCompletionUnknownError, pqErr.Code, err)
+						pgcode.StatementCompletionUnknown, pqErr.Code, err)
 				}
 			} else {
 				t.Errorf("expected pq error; got %v", err)

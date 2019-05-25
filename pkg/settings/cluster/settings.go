@@ -20,6 +20,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/settings"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 	"github.com/cockroachdb/cockroach/pkg/util/protoutil"
 	"github.com/cockroachdb/cockroach/pkg/util/tracing"
 	"github.com/pkg/errors"
@@ -213,7 +214,7 @@ func (ecv *ExposedClusterVersion) IsActive(versionKey VersionKey) bool {
 func (ecv *ExposedClusterVersion) CheckVersion(versionKey VersionKey, feature string) error {
 	if !ecv.Version().IsActive(versionKey) {
 		return pgerror.Newf(
-			pgerror.CodeFeatureNotSupportedError,
+			pgcode.FeatureNotSupported,
 			"cluster version does not support %s (>= %s required)",
 			feature,
 			VersionByKey(versionKey).String(),

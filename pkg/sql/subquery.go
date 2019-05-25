@@ -23,6 +23,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sqltelemetry"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 // subquery represents a subquery expression in an expression tree
@@ -197,11 +198,11 @@ func (v *subqueryVisitor) extractSubquery(
 		switch desiredColumns {
 		case 1:
 			plan.Close(v.ctx)
-			return nil, pgerror.Newf(pgerror.CodeSyntaxError,
+			return nil, pgerror.Newf(pgcode.Syntax,
 				"subquery must return only one column, found %d", len(cols))
 		default:
 			plan.Close(v.ctx)
-			return nil, pgerror.Newf(pgerror.CodeSyntaxError,
+			return nil, pgerror.Newf(pgcode.Syntax,
 				"subquery must return %d columns, found %d", desiredColumns, len(cols))
 		}
 	}

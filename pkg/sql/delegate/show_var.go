@@ -19,6 +19,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/lex"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 // ValidVars contains the set of variable names; initialized from the SQL
@@ -37,7 +38,7 @@ func (d *delegator) delegateShowVar(n *tree.ShowVar) (tree.Statement, error) {
 	}
 
 	if _, ok := ValidVars[name]; !ok {
-		return nil, pgerror.Newf(pgerror.CodeUndefinedObjectError,
+		return nil, pgerror.Newf(pgcode.UndefinedObject,
 			"unrecognized configuration parameter %q", origName)
 	}
 

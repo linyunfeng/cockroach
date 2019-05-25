@@ -21,6 +21,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 // joinNode is a planNode whose rows are the result of an inner or
@@ -150,7 +151,7 @@ func (p *planner) makeJoin(
 				continue
 			}
 			return planDataSource{}, pgerror.Newf(
-				pgerror.CodeDuplicateAliasError,
+				pgcode.DuplicateAlias,
 				"source name %q specified more than once (missing AS clause)",
 				t,
 			)

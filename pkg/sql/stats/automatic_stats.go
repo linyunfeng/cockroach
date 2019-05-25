@@ -27,6 +27,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlutil"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 	"github.com/cockroachdb/cockroach/pkg/util/stop"
 	"github.com/cockroachdb/cockroach/pkg/util/syncutil"
 	"github.com/cockroachdb/cockroach/pkg/util/timeutil"
@@ -54,7 +55,7 @@ var AutomaticStatisticsMaxIdleTime = settings.RegisterValidatedFloatSetting(
 	0.9,
 	func(val float64) error {
 		if val < 0 || val >= 1 {
-			return pgerror.Newf(pgerror.CodeInvalidParameterValueError,
+			return pgerror.Newf(pgcode.InvalidParameterValue,
 				"sql.stats.automatic_collection.max_fraction_idle must be >= 0 and < 1 but found: %v", val)
 		}
 		return nil

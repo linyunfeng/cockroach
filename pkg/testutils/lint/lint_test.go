@@ -1395,7 +1395,7 @@ func TestLint(t *testing.T) {
 				// even if it might not be used again.
 				stream.GrepNot(`pkg/sql/parser/sql.go:.*this value of sqlDollar is never used`),
 				// Generated file containing many unused postgres error codes.
-				stream.GrepNot(`pkg/sql/pgwire/pgerror/codes.go:.* const Code.* is unused`),
+				stream.GrepNot(`pkg/util/pgcode/codes.go:.* const .* is unused`),
 				// The methods in exprgen.customFuncs are used via reflection.
 				stream.GrepNot(`pkg/sql/opt/optgen/exprgen/custom_funcs.go:.* func .* is unused`),
 				// The API forwards in the errors package are declared for documentation purposes.

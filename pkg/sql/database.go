@@ -25,6 +25,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 //
@@ -168,7 +169,7 @@ func (dc *databaseCache) getCachedDatabaseDescByID(
 
 	database := desc.GetDatabase()
 	if database == nil {
-		return nil, pgerror.Newf(pgerror.CodeWrongObjectTypeError, "[%d] is not a database", id)
+		return nil, pgerror.Newf(pgcode.WrongObjectType, "[%d] is not a database", id)
 	}
 
 	return database, database.Validate()
@@ -299,7 +300,7 @@ func (p *planner) renameDatabase(
 
 	if err := p.txn.Run(ctx, b); err != nil {
 		if _, ok := err.(*roachpb.ConditionFailedError); ok {
-			return pgerror.Newf(pgerror.CodeDuplicateDatabaseError,
+			return pgerror.Newf(pgcode.DuplicateDatabase,
 				"the new database name %q already exists", newName)
 		}
 		return err

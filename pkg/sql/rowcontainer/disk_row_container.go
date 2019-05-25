@@ -23,6 +23,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/encoding"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/mon"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 // DiskRowContainer is a SortableRowContainer that stores rows on disk according
@@ -162,7 +163,7 @@ func (d *DiskRowContainer) AddRow(ctx context.Context, row sqlbase.EncDatumRow) 
 	// mess with key decoding.
 	d.scratchKey = encoding.EncodeUvarintAscending(d.scratchKey, d.rowID)
 	if err := d.diskAcc.Grow(ctx, int64(len(d.scratchKey)+len(d.scratchVal))); err != nil {
-		return pgerror.Wrapf(err, pgerror.CodeOutOfMemoryError,
+		return pgerror.Wrapf(err, pgcode.OutOfMemory,
 			"this query requires additional disk space")
 	}
 	if err := d.bufferedRows.Put(d.scratchKey, d.scratchVal); err != nil {

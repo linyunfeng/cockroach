@@ -42,7 +42,7 @@ import (
 const RestartSavepointName string = "cockroach_restart"
 
 var errSavepointNotUsed = pgerror.Newf(
-	pgerror.CodeSavepointExceptionError,
+	pgcode.SavepointException,
 	"savepoint %s has not been used", RestartSavepointName)
 
 // execStmt executes one statement by dispatching according to the current
@@ -268,7 +268,7 @@ func (ex *connExecutor) execStmtInOpenState(
 		// https://github.com/cockroachdb/cockroach/issues/15012
 		meta := ex.state.mu.txn.GetTxnCoordMeta(ctx)
 		if meta.CommandCount > 0 {
-			err := pgerror.Newf(pgerror.CodeSyntaxError,
+			err := pgerror.Newf(pgcode.Syntax,
 				"SAVEPOINT %s needs to be the first statement in a "+
 					"transaction", RestartSavepointName)
 			return makeErrEvent(err)
@@ -296,7 +296,7 @@ func (ex *connExecutor) execStmtInOpenState(
 		name := s.Name.String()
 		if _, ok := ex.extraTxnState.prepStmtsNamespace.prepStmts[name]; ok {
 			err := pgerror.Newf(
-				pgerror.CodeDuplicatePreparedStatementError,
+				pgcode.DuplicatePreparedStatement,
 				"prepared statement %q already exists", name,
 			)
 			return makeErrEvent(err)
@@ -304,7 +304,7 @@ func (ex *connExecutor) execStmtInOpenState(
 		var typeHints tree.PlaceholderTypes
 		if len(s.Types) > 0 {
 			if len(s.Types) > stmt.NumPlaceholders {
-				err := pgerror.Newf(pgerror.CodeSyntaxError, "too many types provided")
+				err := pgerror.Newf(pgcode.Syntax, "too many types provided")
 				return makeErrEvent(err)
 			}
 			typeHints = make(tree.PlaceholderTypes, stmt.NumPlaceholders)
@@ -339,7 +339,7 @@ func (ex *connExecutor) execStmtInOpenState(
 		ps, ok := ex.extraTxnState.prepStmtsNamespace.prepStmts[name]
 		if !ok {
 			err := pgerror.Newf(
-				pgerror.CodeInvalidSQLStatementNameError,
+				pgcode.InvalidSQLStatementName,
 				"prepared statement %q does not exist", name,
 			)
 			return makeErrEvent(err)
@@ -1221,7 +1221,7 @@ func (ex *connExecutor) enableTracing(modes []string) error {
 		case "cluster":
 			recordingType = tracing.SnowballRecording
 		default:
-			return pgerror.Newf(pgerror.CodeSyntaxError,
+			return pgerror.Newf(pgcode.Syntax,
 				"set tracing: unknown mode %q", s)
 		}
 	}
@@ -1330,7 +1330,7 @@ func (ex *connExecutor) validateSavepointName(savepoint tree.Name) error {
 		if savepoint == ex.state.activeSavepointName {
 			return nil
 		}
-		return pgerror.Newf(pgerror.CodeInvalidSavepointSpecificationError,
+		return pgerror.Newf(pgcode.InvalidSavepointSpecification,
 			`SAVEPOINT %q is in use`, tree.ErrString(&ex.state.activeSavepointName))
 	}
 	if !ex.sessionData.ForceSavepointRestart && !strings.HasPrefix(string(savepoint), RestartSavepointName) {

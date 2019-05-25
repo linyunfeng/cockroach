@@ -25,6 +25,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 	"github.com/cockroachdb/cockroach/pkg/util/tracing"
 )
 
@@ -342,7 +343,7 @@ func (p *planner) makePlan(ctx context.Context) error {
 	cols := planColumns(p.curPlan.plan)
 	if stmt.ExpectedTypes != nil {
 		if !stmt.ExpectedTypes.TypesEqual(cols) {
-			return pgerror.New(pgerror.CodeFeatureNotSupportedError,
+			return pgerror.New(pgcode.FeatureNotSupported,
 				"cached plan must not change result type")
 		}
 	}
@@ -595,7 +596,7 @@ func (p *planner) newPlan(
 
 	if p.EvalContext().TxnReadOnly {
 		if canModifySchema || tree.CanWriteData(stmt) {
-			return nil, pgerror.Newf(pgerror.CodeReadOnlySQLTransactionError,
+			return nil, pgerror.Newf(pgcode.ReadOnlySQLTransaction,
 				"cannot execute %s in a read-only transaction", stmt.StatementTag())
 		}
 	}
@@ -723,7 +724,7 @@ func (p *planner) newPlan(
 	case *tree.ValuesClauseWithNames:
 		return p.Values(ctx, n, desiredTypes)
 	case tree.CCLOnlyStatement:
-		return nil, pgerror.Newf(pgerror.CodeCCLRequired,
+		return nil, pgerror.Newf(pgcode.CCLRequired,
 			"a CCL binary is required to use this statement type: %T", stmt)
 	default:
 		var catalog optCatalog

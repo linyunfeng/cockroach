@@ -44,6 +44,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 // groupby information stored in scopes.
@@ -601,7 +602,7 @@ func isGenerator(def *tree.FunctionDefinition) bool {
 }
 
 func newGroupingError(name *tree.Name) error {
-	return pgerror.Newf(pgerror.CodeGroupingError,
+	return pgerror.Newf(pgcode.Grouping,
 		"column \"%s\" must appear in the GROUP BY clause or be used in an aggregate function",
 		tree.ErrString(name),
 	)

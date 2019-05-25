@@ -26,6 +26,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqltelemetry"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 // buildScalar builds a set of memo groups that represent the given scalar
@@ -271,7 +272,7 @@ func (b *Builder) buildScalar(
 
 	case *tree.IndexedVar:
 		if t.Idx < 0 || t.Idx >= len(inScope.cols) {
-			panic(pgerror.Newf(pgerror.CodeUndefinedColumnError,
+			panic(pgerror.Newf(pgcode.UndefinedColumn,
 				"invalid column ordinal: @%d", t.Idx+1))
 		}
 		out = b.factory.ConstructVariable(inScope.cols[t.Idx].id)
@@ -556,7 +557,7 @@ func (b *Builder) checkSubqueryOuterCols(
 			colID, _ := subqueryOuterCols.Next(0)
 			col := inScope.getColumn(opt.ColumnID(colID))
 			panic(pgerror.Newf(
-				pgerror.CodeGroupingError,
+				pgcode.Grouping,
 				"subquery uses ungrouped column \"%s\" from outer query",
 				tree.ErrString(&col.name)))
 		}

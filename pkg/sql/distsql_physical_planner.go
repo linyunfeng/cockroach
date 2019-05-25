@@ -41,6 +41,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/encoding"
 	"github.com/cockroachdb/cockroach/pkg/util/envutil"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 	"github.com/cockroachdb/cockroach/pkg/util/stop"
 	"github.com/cockroachdb/cockroach/pkg/util/uuid"
 )
@@ -663,11 +664,11 @@ func (h *distSQLNodeHealth) check(ctx context.Context, nodeID roachpb.NodeID) er
 	{
 		live, err := h.isLive(nodeID)
 		if err == nil && !live {
-			err = pgerror.Newf(pgerror.CodeCannotConnectNowError,
+			err = pgerror.Newf(pgcode.CannotConnectNow,
 				"node n%d is not live", errors.Safe(nodeID))
 		}
 		if err != nil {
-			return pgerror.Wrapf(err, pgerror.CodeCannotConnectNowError,
+			return pgerror.Wrapf(err, pgcode.CannotConnectNow,
 				"not using n%d due to liveness", errors.Safe(nodeID))
 		}
 	}

@@ -18,6 +18,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sessiondata"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 // fillInPlaceholder helps with the EXECUTE foo(args) SQL statement: it takes in
@@ -28,7 +29,7 @@ func fillInPlaceholders(
 	ps *PreparedStatement, name string, params tree.Exprs, searchPath sessiondata.SearchPath,
 ) (*tree.PlaceholderInfo, error) {
 	if len(ps.Types) != len(params) {
-		return nil, pgerror.Newf(pgerror.CodeSyntaxError,
+		return nil, pgerror.Newf(pgcode.Syntax,
 			"wrong number of parameters for prepared statement %q: expected %d, got %d",
 			name, len(ps.Types), len(params))
 	}
@@ -46,7 +47,7 @@ func fillInPlaceholders(
 			e, typ, "EXECUTE parameter", /* context */
 			&semaCtx, true /* allowImpure */)
 		if err != nil {
-			return nil, pgerror.New(pgerror.CodeWrongObjectTypeError, err.Error())
+			return nil, pgerror.New(pgcode.WrongObjectType, err.Error())
 		}
 
 		qArgs[idx] = typedExpr

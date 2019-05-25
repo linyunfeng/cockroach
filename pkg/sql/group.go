@@ -26,6 +26,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/encoding"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/mon"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 // A groupNode implements the planNode interface and handles the grouping logic.
@@ -570,7 +571,7 @@ func (v *extractAggregatesVisitor) VisitPre(expr tree.Expr) (recurse bool, newEx
 		}
 
 	case *tree.IndexedVar:
-		v.err = pgerror.Newf(pgerror.CodeGroupingError,
+		v.err = pgerror.Newf(pgcode.Grouping,
 			"column \"%s\" must appear in the GROUP BY clause or be used in an aggregate function",
 			t)
 		return false, expr

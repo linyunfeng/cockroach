@@ -39,6 +39,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
 	"github.com/cockroachdb/cockroach/pkg/util/interval"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 	"github.com/cockroachdb/cockroach/pkg/util/protoutil"
 	"github.com/cockroachdb/cockroach/pkg/util/syncutil"
 	"github.com/cockroachdb/cockroach/pkg/util/timeutil"
@@ -777,13 +778,13 @@ func VerifyUsableExportTarget(
 		// TODO(dt): If we audit exactly what not-exists error each ExportStorage
 		// returns (and then wrap/tag them), we could narrow this check.
 		r.Close()
-		return pgerror.Newf(pgerror.CodeDuplicateFileError,
+		return pgerror.Newf(pgcode.DuplicateFile,
 			"%s already contains a %s file",
 			readable, BackupDescriptorName)
 	}
 	if r, err := exportStore.ReadFile(ctx, BackupDescriptorCheckpointName); err == nil {
 		r.Close()
-		return pgerror.Newf(pgerror.CodeDuplicateFileError,
+		return pgerror.Newf(pgcode.DuplicateFile,
 			"%s already contains a %s file (is another operation already in progress?)",
 			readable, BackupDescriptorCheckpointName)
 	}
@@ -1110,7 +1111,7 @@ func (b *backupResumer) Resume(
 
 	var backupDesc BackupDescriptor
 	if err := protoutil.Unmarshal(details.BackupDescriptor, &backupDesc); err != nil {
-		return pgerror.Wrapf(err, pgerror.CodeDataCorruptedError,
+		return pgerror.Wrapf(err, pgcode.DataCorrupted,
 			"unmarshal backup descriptor")
 	}
 	conf, err := storageccl.ExportStorageConfFromURI(details.URI)

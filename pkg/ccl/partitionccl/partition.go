@@ -21,6 +21,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util/encoding"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 // valueEncodePartitionTuple typechecks the datums in maybeTuple. It returns the
@@ -96,7 +97,7 @@ func valueEncodePartitionTuple(
 			return nil, err
 		}
 		if !tree.IsConst(evalCtx, typedExpr) {
-			return nil, pgerror.Newf(pgerror.CodeSyntaxError,
+			return nil, pgerror.Newf(pgcode.Syntax,
 				"%s: partition values must be constant", typedExpr)
 		}
 		datum, err := typedExpr.Eval(evalCtx)
@@ -166,7 +167,7 @@ func createPartitioningImpl(
 	var cols []sqlbase.ColumnDescriptor
 	for i := 0; i < len(partBy.Fields); i++ {
 		if colOffset+i >= len(indexDesc.ColumnNames) {
-			return partDesc, pgerror.Newf(pgerror.CodeSyntaxError,
+			return partDesc, pgerror.Newf(pgcode.Syntax,
 				"declared partition columns (%s) exceed the number of columns in index being partitioned (%s)",
 				partitioningString(), strings.Join(indexDesc.ColumnNames, ", "))
 		}
@@ -181,7 +182,7 @@ func createPartitioningImpl(
 			// This used to print the first `colOffset + len(partBy.Fields)` fields
 			// but there might not be this many columns in the index. See #37682.
 			n := colOffset + i + 1
-			return partDesc, pgerror.Newf(pgerror.CodeSyntaxError,
+			return partDesc, pgerror.Newf(pgcode.Syntax,
 				"declared partition columns (%s) do not match first %d columns in index being partitioned (%s)",
 				partitioningString(), n, strings.Join(indexDesc.ColumnNames[:n], ", "))
 		}

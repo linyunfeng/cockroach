@@ -20,6 +20,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 // fkExistenceCheckBaseHelper is an auxiliary struct that facilitates FK existence
@@ -219,7 +220,7 @@ func computeFkCheckColumnIDs(
 			return ids, nil
 
 		case 1:
-			return nil, pgerror.Newf(pgerror.CodeForeignKeyViolationError,
+			return nil, pgerror.Newf(pgcode.ForeignKeyViolation,
 				"missing value for column %q in multi-part foreign key", missingColumns[0])
 
 		case prefixLen:
@@ -228,7 +229,7 @@ func computeFkCheckColumnIDs(
 
 		default:
 			sort.Strings(missingColumns)
-			return nil, pgerror.Newf(pgerror.CodeForeignKeyViolationError,
+			return nil, pgerror.Newf(pgcode.ForeignKeyViolation,
 				"missing values for columns %q in multi-part foreign key", missingColumns)
 		}
 

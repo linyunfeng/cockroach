@@ -29,6 +29,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/util"
 	"github.com/cockroachdb/cockroach/pkg/util/encoding"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 type execPlan struct {
@@ -145,7 +146,7 @@ func (b *Builder) buildRelational(e memo.RelExpr) (execPlan, error) {
 	// Raise error if mutation op is part of a read-only transaction.
 	if opt.IsMutationOp(e) {
 		if b.evalCtx.TxnReadOnly {
-			return execPlan{}, pgerror.Newf(pgerror.CodeReadOnlySQLTransactionError,
+			return execPlan{}, pgerror.Newf(pgcode.ReadOnlySQLTransaction,
 				"cannot execute %s in a read-only transaction", e.Op().SyntaxTag())
 		}
 	}

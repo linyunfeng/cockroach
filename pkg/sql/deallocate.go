@@ -17,6 +17,7 @@ import (
 
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 // Deallocate implements the DEALLOCATE statement.
@@ -26,7 +27,7 @@ func (p *planner) Deallocate(ctx context.Context, s *tree.Deallocate) (planNode,
 		p.preparedStatements.DeleteAll(ctx)
 	} else {
 		if found := p.preparedStatements.Delete(ctx, string(s.Name)); !found {
-			return nil, pgerror.Newf(pgerror.CodeInvalidSQLStatementNameError,
+			return nil, pgerror.Newf(pgcode.InvalidSQLStatementName,
 				"prepared statement %q does not exist", s.Name)
 		}
 	}

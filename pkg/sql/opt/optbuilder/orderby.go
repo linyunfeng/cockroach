@@ -19,6 +19,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/privilege"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 // analyzeOrderBy analyzes an Ordering physical property from the ORDER BY
@@ -91,7 +92,7 @@ func (b *Builder) findIndexByName(table cat.Table, name tree.UnrestrictedName) (
 		}
 	}
 
-	return nil, pgerror.Newf(pgerror.CodeUndefinedObjectError,
+	return nil, pgerror.Newf(pgcode.UndefinedObject,
 		`index %q not found`, name)
 }
 

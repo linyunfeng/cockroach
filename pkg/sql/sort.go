@@ -22,6 +22,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util/encoding"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 // sortNode represents a node that sorts the rows returned by its
@@ -412,7 +413,7 @@ func (p *planner) colIndex(numOriginalCols int, expr tree.Expr, context string) 
 			ord = val
 		} else {
 			return -1, pgerror.Newf(
-				pgerror.CodeSyntaxError,
+				pgcode.Syntax,
 				"non-integer constant in %s: %s", context, expr,
 			)
 		}
@@ -422,17 +423,17 @@ func (p *planner) colIndex(numOriginalCols int, expr tree.Expr, context string) 
 		}
 	case *tree.StrVal:
 		return -1, pgerror.Newf(
-			pgerror.CodeSyntaxError, "non-integer constant in %s: %s", context, expr,
+			pgcode.Syntax, "non-integer constant in %s: %s", context, expr,
 		)
 	case tree.Datum:
 		return -1, pgerror.Newf(
-			pgerror.CodeSyntaxError, "non-integer constant in %s: %s", context, expr,
+			pgcode.Syntax, "non-integer constant in %s: %s", context, expr,
 		)
 	}
 	if ord != -1 {
 		if ord < 1 || ord > int64(numOriginalCols) {
 			return -1, pgerror.Newf(
-				pgerror.CodeInvalidColumnReferenceError,
+				pgcode.InvalidColumnReference,
 				"%s position %s is not in select list", context, expr,
 			)
 		}

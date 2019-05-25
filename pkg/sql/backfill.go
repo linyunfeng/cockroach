@@ -34,6 +34,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/ctxgroup"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 	"github.com/cockroachdb/cockroach/pkg/util/timeutil"
 )
 
@@ -1025,7 +1026,7 @@ func (sc *SchemaChanger) validateForwardIndexes(
 				if idxLen != tableRowCount {
 					// TODO(vivek): find the offending row and include it in the error.
 					return pgerror.Newf(
-						pgerror.CodeUniqueViolationError,
+						pgcode.UniqueViolation,
 						"%d entries, expected %d violates unique constraint %q",
 						idxLen, tableRowCount, idx.Name,
 					)

@@ -14,6 +14,7 @@ package sessiondata
 
 import (
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 	"github.com/cockroachdb/cockroach/pkg/util/syncutil"
 )
 
@@ -71,7 +72,7 @@ func (ss *SequenceState) GetLastValue() (int64, error) {
 
 	if !ss.nextValEverCalledLocked() {
 		return 0, pgerror.New(
-			pgerror.CodeObjectNotInPrerequisiteStateError, "lastval is not yet defined in this session")
+			pgcode.ObjectNotInPrerequisiteState, "lastval is not yet defined in this session")
 	}
 
 	return ss.mu.latestValues[ss.mu.lastSequenceIncremented], nil

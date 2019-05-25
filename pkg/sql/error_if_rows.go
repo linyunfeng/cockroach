@@ -17,6 +17,7 @@ import (
 
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 // errorIfRowsNode wraps another planNode and returns an error if the wrapped
@@ -43,7 +44,7 @@ func (n *errorIfRowsNode) Next(params runParams) (bool, error) {
 	}
 	if ok {
 		// TODO(yuzefovich): update the error once the optimizer plans this node.
-		return false, pgerror.Newf(pgerror.CodeForeignKeyViolationError,
+		return false, pgerror.Newf(pgcode.ForeignKeyViolation,
 			"foreign key violation: values %s", n.plan.Values())
 	}
 	return false, nil

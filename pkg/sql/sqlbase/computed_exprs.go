@@ -20,6 +20,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/transform"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 // RowIndexedVarContainer is used to evaluate expressions over various rows.
@@ -76,7 +77,7 @@ func (*descContainer) IndexedVarNodeFormatter(idx int) tree.NodeFormatter {
 
 // CannotWriteToComputedColError constructs a write error for a computed column.
 func CannotWriteToComputedColError(colName string) error {
-	return pgerror.Newf(pgerror.CodeObjectNotInPrerequisiteStateError,
+	return pgerror.Newf(pgcode.ObjectNotInPrerequisiteState,
 		"cannot write directly to computed column %q", tree.ErrNameString(colName))
 }
 

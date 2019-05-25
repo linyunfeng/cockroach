@@ -56,6 +56,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util"
 	"github.com/cockroachdb/cockroach/pkg/util/envutil"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 	"github.com/cockroachdb/cockroach/pkg/util/syncutil"
 	"github.com/cockroachdb/cockroach/pkg/util/timeutil"
 	"github.com/lib/pq"
@@ -1694,7 +1695,7 @@ func (t *logicTest) verifyError(
 		pqErr, ok := err.(*pq.Error)
 		if ok &&
 			strings.HasPrefix(string(pqErr.Code), "XX" /* internal error, corruption, etc */) &&
-			string(pqErr.Code) != pgerror.CodeUncategorizedError /* this is also XX but innocuous */ {
+			string(pqErr.Code) != pgcode.Uncategorized /* this is also XX but innocuous */ {
 			if expectErrCode != string(pqErr.Code) {
 				return false, errors.Errorf(
 					"%s: %s: serious error with code %q occurred; if expected, must use 'error pgcode %s ...' in test:\n%s",
@@ -1735,7 +1736,7 @@ func formatErr(err error) string {
 		if pqErr.Detail != "" {
 			fmt.Fprintf(&buf, "\nDETAIL: %s", pqErr.Detail)
 		}
-		if pqErr.Code == pgerror.CodeInternalError {
+		if pqErr.Code == pgcode.Internal {
 			fmt.Fprintln(&buf, "\nNOTE: internal errors may have more details in logs. Use -show-logs.")
 		}
 		return buf.String()

@@ -23,6 +23,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 // PlaceholderIdx is the 0-based index of a placeholder. Placeholder "$1"
@@ -133,7 +134,7 @@ func (p *PlaceholderTypesInfo) SetType(idx PlaceholderIdx, typ *types.T) error {
 	if t := p.Types[idx]; t != nil {
 		if !typ.Equivalent(t) {
 			return pgerror.Newf(
-				pgerror.CodeDatatypeMismatchError,
+				pgcode.DatatypeMismatch,
 				"placeholder %s already has type %s, cannot assign %s", idx, t, typ)
 		}
 		return nil
@@ -189,7 +190,7 @@ func checkPlaceholderArity(numTypes, numPlaceholders int) error {
 			"unexpected placeholder types: got %d, expected %d",
 			numTypes, numPlaceholders)
 	} else if numTypes < numPlaceholders {
-		return pgerror.Newf(pgerror.CodeUndefinedParameterError,
+		return pgerror.Newf(pgcode.UndefinedParameter,
 			"could not find types for all placeholders: got %d, expected %d",
 			numTypes, numPlaceholders)
 	}
@@ -217,7 +218,7 @@ func (p *PlaceholderInfo) AssertAllAssigned() error {
 	}
 	if len(missing) > 0 {
 		sort.Strings(missing)
-		return pgerror.Newf(pgerror.CodeUndefinedParameterError,
+		return pgerror.Newf(pgcode.UndefinedParameter,
 			"no value provided for placeholder%s: %s",
 			util.Pluralize(int64(len(missing))),
 			strings.Join(missing, ", "),

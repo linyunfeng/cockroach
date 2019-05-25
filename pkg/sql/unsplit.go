@@ -23,6 +23,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 type unsplitNode struct {
@@ -134,7 +135,7 @@ func (n *unsplitNode) startExec(params runParams) error {
 	stickyBitEnabled := params.EvalContext().Settings.Version.IsActive(cluster.VersionStickyBit)
 	// TODO(jeffreyxiao): Remove this error in v20.1.
 	if !stickyBitEnabled {
-		return pgerror.Newf(pgerror.CodeObjectNotInPrerequisiteStateError,
+		return pgerror.Newf(pgcode.ObjectNotInPrerequisiteState,
 			`UNSPLIT AT requires all nodes to be upgraded to %s`,
 			cluster.VersionByKey(cluster.VersionCreateStats),
 		)
