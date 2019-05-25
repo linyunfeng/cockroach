@@ -20,6 +20,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/util/ctxgroup"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 )
 
 type mysqloutfileReader struct {
@@ -114,7 +115,7 @@ func (d *mysqloutfileReader) readFile(
 	addRow := func() error {
 		copy(d.conv.datums, row)
 		if err := d.conv.row(ctx, inputIdx, count); err != nil {
-			return wrapRowErr(err, inputName, count, pgerror.CodeDataExceptionError, "")
+			return wrapRowErr(err, inputName, count, pgcode.Uncategorized, "")
 		}
 		count++
 

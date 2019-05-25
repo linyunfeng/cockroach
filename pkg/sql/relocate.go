@@ -15,6 +15,7 @@ package sql
 import (
 	"context"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/gossip"
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/keys"
@@ -25,7 +26,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
-	"github.com/pkg/errors"
 )
 
 type relocateNode struct {
@@ -203,8 +203,7 @@ func (n *relocateNode) Next(params runParams) (bool, error) {
 
 	rangeDesc, err := lookupRangeDescriptor(params.ctx, params.extendedEvalCtx.ExecCfg.DB, rowKey)
 	if err != nil {
-		return false, pgerror.Wrapf(err, pgerror.CodeDataExceptionError,
-			"error looking up range descriptor")
+		return false, errors.Wrapf(err, "error looking up range descriptor")
 	}
 	n.run.lastRangeStartKey = rangeDesc.StartKey.AsRawKey()
 

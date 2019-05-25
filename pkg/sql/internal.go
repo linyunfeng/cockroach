@@ -17,6 +17,7 @@ import (
 	"math"
 	"sync"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/security"
 	"github.com/cockroachdb/cockroach/pkg/settings/cluster"
@@ -467,10 +468,10 @@ func (ie *internalExecutorImpl) execInternal(
 		// case we need to leave the error intact so that it can be retried at a
 		// higher level.
 		if retErr != nil && !errIsRetriable(retErr) {
-			retErr = pgerror.Wrapf(retErr, pgerror.CodeDataExceptionError, opName)
+			retErr = errors.Wrapf(retErr, opName)
 		}
 		if retRes.err != nil && !errIsRetriable(retRes.err) {
-			retRes.err = pgerror.Wrapf(retRes.err, pgerror.CodeDataExceptionError, opName)
+			retRes.err = errors.Wrapf(retRes.err, opName)
 		}
 	}()
 

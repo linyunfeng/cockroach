@@ -15,6 +15,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
 	"github.com/cockroachdb/cockroach/pkg/settings/cluster"
 	"github.com/cockroachdb/cockroach/pkg/sql"
@@ -25,8 +26,8 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/ctxgroup"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 	"github.com/lib/pq/oid"
-	"github.com/pkg/errors"
 )
 
 type postgreStream struct {
@@ -534,7 +535,7 @@ func (m *pgDumpReader) readFile(
 				}
 				count++
 				if err != nil {
-					return wrapRowErr(err, inputName, count, pgerror.CodeDataExceptionError, "")
+					return wrapRowErr(err, inputName, count, pgcode.Uncategorized, "")
 				}
 				if !importing {
 					continue
@@ -561,7 +562,7 @@ func (m *pgDumpReader) readFile(
 						return err
 					}
 				default:
-					return makeRowErr(inputName, count, pgerror.CodeDataExceptionError,
+					return makeRowErr(inputName, count, pgcode.Uncategorized,
 						"unexpected: %v", row)
 				}
 			}
@@ -614,7 +615,7 @@ func (m *pgDumpReader) readFile(
 			}
 			key, val, err := sql.MakeSequenceKeyVal(seq, val, isCalled)
 			if err != nil {
-				return wrapRowErr(err, inputName, count, pgerror.CodeDataExceptionError, "")
+				return wrapRowErr(err, inputName, count, pgcode.Uncategorized, "")
 			}
 			kv := roachpb.KeyValue{Key: key}
 			kv.Value.SetInt(val)

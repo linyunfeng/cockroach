@@ -16,6 +16,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/jobs"
 	"github.com/cockroachdb/cockroach/pkg/jobs/jobspb"
@@ -30,7 +31,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/log/logtags"
 	"github.com/cockroachdb/cockroach/pkg/util/timeutil"
 	"github.com/cockroachdb/cockroach/pkg/util/tracing"
-	"github.com/pkg/errors"
 )
 
 type chunkBackfiller interface {
@@ -257,8 +257,7 @@ func GetResumeSpans(
 
 	job, err := jobsRegistry.LoadJobWithTxn(ctx, jobID, txn)
 	if err != nil {
-		return nil, nil, 0, pgerror.Wrapf(err, pgerror.CodeDataExceptionError,
-			"can't find job %d", log.Safe(jobID))
+		return nil, nil, 0, errors.Wrapf(err, "can't find job %d", log.Safe(jobID))
 	}
 	details, ok := job.Details().(jobspb.SchemaChangeDetails)
 	if !ok {

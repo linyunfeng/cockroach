@@ -18,6 +18,7 @@ import (
 	gojson "encoding/json"
 	"fmt"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/keys"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/privilege"
@@ -861,8 +862,7 @@ func injectTableStats(
 		params.EvalContext().Txn,
 		`DELETE FROM system.table_statistics WHERE "tableID" = $1`, desc.ID,
 	); err != nil {
-		return pgerror.Wrapf(err, pgerror.CodeDataExceptionError,
-			"failed to delete old stats")
+		return errors.Wrapf(err, "failed to delete old stats")
 	}
 
 	// Insert each statistic.
@@ -919,8 +919,7 @@ func injectTableStats(
 			s.NullCount,
 			histogram,
 		); err != nil {
-			return pgerror.Wrapf(err, pgerror.CodeDataExceptionError,
-				"failed to insert stats")
+			return errors.Wrapf(err, "failed to insert stats")
 		}
 	}
 

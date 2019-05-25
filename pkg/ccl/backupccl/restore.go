@@ -19,6 +19,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/ccl/storageccl"
 	"github.com/cockroachdb/cockroach/pkg/ccl/utilccl"
 	"github.com/cockroachdb/cockroach/pkg/ccl/utilccl/intervalccl"
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/gossip"
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/jobs"
@@ -42,7 +43,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/syncutil"
 	"github.com/cockroachdb/cockroach/pkg/util/tracing"
 	opentracing "github.com/opentracing/opentracing-go"
-	"github.com/pkg/errors"
 )
 
 // TableRewriteMap maps old table IDs to new table and parent IDs.
@@ -68,13 +68,12 @@ func loadBackupDescs(
 	for i, uri := range uris {
 		desc, err := ReadBackupDescriptorFromURI(ctx, uri, settings)
 		if err != nil {
-			return nil, pgerror.Wrapf(err, pgerror.CodeDataExceptionError,
-				"failed to read backup descriptor")
+			return nil, errors.Wrapf(err, "failed to read backup descriptor")
 		}
 		backupDescs[i] = desc
 	}
 	if len(backupDescs) == 0 {
-		return nil, pgerror.Newf(pgerror.CodeDataExceptionError, "no backups found")
+		return nil, errors.Newf("no backups found")
 	}
 	return backupDescs, nil
 }
@@ -930,7 +929,7 @@ func WriteTableDescs(
 			b.InitPut(kv.Key, &kv.Value, false)
 		}
 		if err := txn.Run(ctx, b); err != nil {
-			if _, ok := errors.Cause(err).(*roachpb.ConditionFailedError); ok {
+			if _, ok := errors.UnwrapAll(err).(*roachpb.ConditionFailedError); ok {
 				return pgerror.Newf(pgerror.CodeDuplicateObjectError, "table already exists")
 			}
 			return err
@@ -944,8 +943,7 @@ func WriteTableDescs(
 		}
 		return nil
 	}()
-	return pgerror.Wrapf(err, pgerror.CodeDataExceptionError,
-		"restoring table desc and namespace entries")
+	return errors.Wrapf(err, "restoring table desc and namespace entries")
 }
 
 func restoreJobDescription(
@@ -1103,8 +1101,7 @@ func restore(
 	highWaterMark := job.Progress().Details.(*jobspb.Progress_Restore).Restore.HighWater
 	importSpans, _, err := makeImportSpans(spans, backupDescs, highWaterMark, errOnMissingRange)
 	if err != nil {
-		return mu.res, nil, nil, pgerror.Wrapf(err, pgerror.CodeDataExceptionError,
-			"making import requests for %d backups", len(backupDescs))
+		return mu.res, nil, nil, errors.Wrapf(err, "making import requests for %d backups", len(backupDescs))
 	}
 
 	for i := range importSpans {
@@ -1204,8 +1201,7 @@ func restore(
 
 				importRes, pErr := client.SendWrapped(ctx, db.NonTransactionalSender(), importRequest)
 				if pErr != nil {
-					return pgerror.Wrapf(pErr.GoError(), pgerror.CodeDataExceptionError,
-						"importing span %v", importRequest.DataSpan)
+					return errors.Wrapf(pErr.GoError(), "importing span %v", importRequest.DataSpan)
 
 				}
 
@@ -1215,8 +1211,7 @@ func restore(
 				// Assert that we're actually marking the correct span done. See #23977.
 				if !importSpans[idx].Key.Equal(importRequest.DataSpan.Key) {
 					mu.Unlock()
-					return pgerror.Newf(pgerror.CodeDataExceptionError,
-						"request %d for span %v (to %v) does not match import span for same idx: %v",
+					return errors.Newf("request %d for span %v (to %v) does not match import span for same idx: %v",
 						idx, importRequest.DataSpan, newSpanKey, importSpans[idx],
 					)
 				}
@@ -1238,8 +1233,7 @@ func restore(
 		// This leaves the data that did get imported in case the user wants to
 		// retry.
 		// TODO(dan): Build tooling to allow a user to restart a failed restore.
-		return mu.res, nil, nil, pgerror.Wrapf(err, pgerror.CodeDataExceptionError,
-			"importing %d ranges", len(importSpans))
+		return mu.res, nil, nil, errors.Wrapf(err, "importing %d ranges", len(importSpans))
 	}
 
 	return mu.res, databases, tables, nil
@@ -1511,8 +1505,7 @@ func (r *restoreResumer) OnSuccess(ctx context.Context, txn *client.Txn) error {
 	// them. After this call, any queries on a table will be served by the newly
 	// restored data.
 	if err := WriteTableDescs(ctx, txn, r.databases, r.tables, r.job.Payload().Username, r.settings, nil); err != nil {
-		return pgerror.Wrapf(err, pgerror.CodeDataExceptionError,
-			"restoring %d TableDescriptors", len(r.tables))
+		return errors.Wrapf(err, "restoring %d TableDescriptors", len(r.tables))
 	}
 
 	// Initiate a run of CREATE STATISTICS. We don't know the actual number of

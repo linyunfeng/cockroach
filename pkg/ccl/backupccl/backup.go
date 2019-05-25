@@ -19,6 +19,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/ccl/storageccl"
 	"github.com/cockroachdb/cockroach/pkg/ccl/utilccl"
 	"github.com/cockroachdb/cockroach/pkg/ccl/utilccl/intervalccl"
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/gossip"
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/jobs"
@@ -42,7 +43,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/syncutil"
 	"github.com/cockroachdb/cockroach/pkg/util/timeutil"
 	"github.com/cockroachdb/cockroach/pkg/util/tracing"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -749,8 +749,7 @@ func backup(
 	})
 
 	if err := g.Wait(); err != nil {
-		return mu.exported, pgerror.Wrapf(err, pgerror.CodeDataExceptionError,
-			"exporting %d ranges", log.Safe(len(spans)))
+		return mu.exported, errors.Wrapf(err, "exporting %d ranges", log.Safe(len(spans)))
 	}
 
 	// No more concurrency, so no need to acquire locks below.
@@ -791,8 +790,7 @@ func VerifyUsableExportTarget(
 	if err := writeBackupDescriptor(
 		ctx, exportStore, BackupDescriptorCheckpointName, &BackupDescriptor{},
 	); err != nil {
-		return pgerror.Wrapf(err, pgerror.CodeDataExceptionError,
-			"cannot write to %s", readable)
+		return errors.Wrapf(err, "cannot write to %s", readable)
 	}
 	return nil
 }
@@ -915,15 +913,13 @@ func backupPlanHook(
 			for i, uri := range incrementalFrom {
 				desc, err := ReadBackupDescriptorFromURI(ctx, uri, p.ExecCfg().Settings)
 				if err != nil {
-					return pgerror.Wrapf(err, pgerror.CodeDataExceptionError,
-						"failed to read backup from %q", uri)
+					return errors.Wrapf(err, "failed to read backup from %q", uri)
 				}
 				// IDs are how we identify tables, and those are only meaningful in the
 				// context of their own cluster, so we need to ensure we only allow
 				// incremental previous backups that we created.
 				if !desc.ClusterID.Equal(clusterID) {
-					return pgerror.Newf(pgerror.CodeDataExceptionError,
-						"previous BACKUP %q belongs to cluster %s", uri, desc.ClusterID.String())
+					return errors.Newf("previous BACKUP %q belongs to cluster %s", uri, desc.ClusterID.String())
 				}
 				prevBackups[i] = desc
 			}
@@ -1007,12 +1003,10 @@ func backupPlanHook(
 					return errOnMissingRange(span, start, end)
 				})
 			if err != nil {
-				return pgerror.Wrapf(err, pgerror.CodeDataExceptionError,
-					"invalid previous backups (a new full backup may be required if a table has been created, dropped or truncated)")
+				return errors.Wrapf(err, "invalid previous backups (a new full backup may be required if a table has been created, dropped or truncated)")
 			}
 			if coveredTime != startTime {
-				return pgerror.Wrapf(err, pgerror.CodeDataExceptionError,
-					"expected previous backups to cover until time %v, got %v", startTime, coveredTime)
+				return errors.Wrapf(err, "expected previous backups to cover until time %v, got %v", startTime, coveredTime)
 			}
 		}
 
@@ -1111,8 +1105,7 @@ func (b *backupResumer) Resume(
 	p := phs.(sql.PlanHookState)
 
 	if len(details.BackupDescriptor) == 0 {
-		return pgerror.Newf(pgerror.CodeDataExceptionError,
-			"missing backup descriptor; cannot resume a backup from an older version")
+		return errors.Newf("missing backup descriptor; cannot resume a backup from an older version")
 	}
 
 	var backupDesc BackupDescriptor
@@ -1122,11 +1115,11 @@ func (b *backupResumer) Resume(
 	}
 	conf, err := storageccl.ExportStorageConfFromURI(details.URI)
 	if err != nil {
-		return pgerror.Wrapf(err, pgerror.CodeDataExceptionError, "export configuration")
+		return errors.Wrapf(err, "export configuration")
 	}
 	exportStore, err := storageccl.MakeExportStorage(ctx, conf, b.settings)
 	if err != nil {
-		return pgerror.Wrapf(err, pgerror.CodeDataExceptionError, "make storage")
+		return errors.Wrapf(err, "make storage")
 	}
 	var checkpointDesc *BackupDescriptor
 	if desc, err := readBackupDescriptor(ctx, exportStore, BackupDescriptorCheckpointName); err == nil {

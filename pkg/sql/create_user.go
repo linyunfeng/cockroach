@@ -16,12 +16,12 @@ import (
 	"context"
 	"regexp"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/security"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/privilege"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
-	"github.com/pkg/errors"
 )
 
 // CreateUserNode creates entries in the system.users table.
@@ -100,7 +100,7 @@ func (n *CreateUserNode) startExec(params runParams) error {
 		normalizedUsername,
 	)
 	if err != nil {
-		return pgerror.Wrapf(err, pgerror.CodeDataExceptionError, "error looking up user")
+		return errors.Wrapf(err, "error looking up user")
 	}
 	if row != nil {
 		isRole := bool(*row[0].(*tree.DBool))

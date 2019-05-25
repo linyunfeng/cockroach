@@ -16,6 +16,7 @@ import (
 	"context"
 	"io"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/distsqlpb"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
@@ -152,7 +153,7 @@ func processProducerMessage(
 	err := sd.AddMessage(msg)
 	if err != nil {
 		return processMessageResult{
-			err: pgerror.Wrapf(err, pgerror.CodeDataExceptionError, "%s",
+			err: errors.Wrapf(err, "%s",
 				log.MakeMessage(ctx, "decoding error", nil /* args */)),
 			consumerClosed: false,
 		}

@@ -385,8 +385,7 @@ func getSpansToProcess(
 		ranges, err = allRangeDescriptors(ctx, txn)
 		return err
 	}); err != nil {
-		return nil, pgerror.Wrapf(err, pgerror.CodeDataExceptionError,
-			"fetching range descriptors")
+		return nil, errors.Wrapf(err, "fetching range descriptors")
 	}
 
 	type spanMarker struct{}
@@ -501,8 +500,7 @@ func (p *poller) exportSpan(
 
 	if pErr != nil {
 		err := pErr.GoError()
-		return pgerror.Wrapf(err, pgerror.CodeDataExceptionError,
-			`fetching changes for %s`, span)
+		return errors.Wrapf(err, `fetching changes for %s`, span)
 	}
 	p.metrics.PollRequestNanosHist.RecordValue(exportDuration.Nanoseconds())
 

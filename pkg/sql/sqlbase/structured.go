@@ -1709,8 +1709,7 @@ func (desc *TableDescriptor) validatePartitioningDescriptor(
 				return fmt.Errorf("PARTITION %s: empty range: lower bound %s is greater than upper bound %s",
 					p.Name, fromDatums, toDatums)
 			} else if err != nil {
-				return pgerror.Wrapf(err, pgerror.CodeDataExceptionError,
-					"PARTITION %s", p.Name)
+				return errors.Wrapf(err, "PARTITION %s", p.Name)
 			}
 		}
 	}

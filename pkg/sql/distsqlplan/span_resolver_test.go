@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/cockroachdb/cockroach/pkg/base"
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/kv"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
@@ -32,7 +33,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/testutils/serverutils"
 	"github.com/cockroachdb/cockroach/pkg/testutils/testcluster"
 	"github.com/cockroachdb/cockroach/pkg/util/leaktest"
-	"github.com/pkg/errors"
 )
 
 // Test that resolving spans uses a node's range cache and lease holder cache.
@@ -181,8 +181,7 @@ func splitRangeAtVal(
 	leftRange, rightRange, err := ts.SplitRange(pik)
 	if err != nil {
 		return roachpb.RangeDescriptor{}, roachpb.RangeDescriptor{},
-			pgerror.Wrapf(err, pgerror.CodeDataExceptionError,
-				"failed to split at row: %d", pk)
+			errors.Wrapf(err, "failed to split at row: %d", pk)
 	}
 	return leftRange, rightRange, nil
 }
