@@ -31,7 +31,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/bitarray"
 	"github.com/cockroachdb/cockroach/pkg/util/duration"
 	"github.com/cockroachdb/cockroach/pkg/util/ipaddr"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/timeofday"
 	"github.com/cockroachdb/cockroach/pkg/util/timeutil/pgdate"
 	"github.com/cockroachdb/cockroach/pkg/util/uint128"
@@ -593,7 +592,7 @@ func DecodeOidDatum(
 		}
 	default:
 		return nil, errors.AssertionFailedf(
-			"unexpected format code: %d", log.Safe(code))
+			"unexpected format code: %d", errors.Safe(code))
 	}
 
 	// Types with identical text/binary handling.
@@ -610,7 +609,7 @@ func DecodeOidDatum(
 		return tree.NewDName(string(b)), nil
 	default:
 		return nil, errors.AssertionFailedf(
-			"unsupported OID %v with format code %s", log.Safe(id), log.Safe(code))
+			"unsupported OID %v with format code %s", errors.Safe(id), errors.Safe(code))
 	}
 }
 

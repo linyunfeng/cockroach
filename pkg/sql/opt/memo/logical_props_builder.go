@@ -22,7 +22,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/util"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
 var fdAnnID = opt.NewTableAnnID()
@@ -588,7 +587,9 @@ func (b *logicalPropsBuilder) buildSetProps(setNode RelExpr, rel *props.Relation
 		len(setPrivate.OutCols) != len(setPrivate.RightCols) {
 		panic(errors.AssertionFailedf(
 			"lists in SetPrivate are not all the same length. new:%d, left:%d, right:%d",
-			log.Safe(len(setPrivate.OutCols)), log.Safe(len(setPrivate.LeftCols)), log.Safe(len(setPrivate.RightCols)),
+			errors.Safe(len(setPrivate.OutCols)),
+			errors.Safe(len(setPrivate.LeftCols)),
+			errors.Safe(len(setPrivate.RightCols)),
 		))
 	}
 

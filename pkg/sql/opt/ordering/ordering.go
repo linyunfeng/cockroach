@@ -19,7 +19,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/props"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/props/physical"
 	"github.com/cockroachdb/cockroach/pkg/util"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
 // CanProvide returns true if the given operator returns rows that can
@@ -241,7 +240,7 @@ func remapProvided(provided opt.Ordering, fds *props.FuncDepSet, outCols opt.Col
 			equivCols := fds.ComputeEquivClosure(util.MakeFastIntSet(int(col)))
 			remappedCol, ok := equivCols.Intersection(outCols).Next(0)
 			if !ok {
-				panic(errors.AssertionFailedf("no output column equivalent to %d", log.Safe(col)))
+				panic(errors.AssertionFailedf("no output column equivalent to %d", errors.Safe(col)))
 			}
 			if result == nil {
 				result = make(opt.Ordering, i, len(provided))
@@ -298,7 +297,7 @@ func checkRequired(expr memo.RelExpr, required *physical.OrderingChoice) {
 
 	// Verify that the ordering only refers to output columns.
 	if !required.SubsetOfCols(rel.OutputCols) {
-		panic(errors.AssertionFailedf("required ordering refers to non-output columns (op %s)", log.Safe(expr.Op())))
+		panic(errors.AssertionFailedf("required ordering refers to non-output columns (op %s)", errors.Safe(expr.Op())))
 	}
 
 	// Verify that columns in a column group are equivalent.
@@ -346,7 +345,8 @@ func checkProvided(expr memo.RelExpr, required *physical.OrderingChoice, provide
 	fds := &expr.Relational().FuncDeps
 	if trimmed := trimProvided(provided, required, fds); len(trimmed) != len(provided) {
 		panic(errors.AssertionFailedf(
-			"provided %s can be trimmed to %s (FDs: %s)", log.Safe(provided), log.Safe(trimmed), log.Safe(fds),
+			"provided %s can be trimmed to %s (FDs: %s)",
+			errors.Safe(provided), errors.Safe(trimmed), errors.Safe(fds),
 		))
 	}
 }

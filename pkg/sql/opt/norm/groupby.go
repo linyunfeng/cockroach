@@ -18,7 +18,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/memo"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/props"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/props/physical"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
 // CanReduceGroupingCols is true if the given GroupBy operator has one or more
@@ -125,7 +124,7 @@ func (c *CustomFuncs) makeAggCols(
 			outAgg = c.f.ConstructFirstAgg(varExpr)
 
 		default:
-			panic(errors.AssertionFailedf("unrecognized aggregate operator type: %v", log.Safe(aggOp)))
+			panic(errors.AssertionFailedf("unrecognized aggregate operator type: %v", errors.Safe(aggOp)))
 		}
 
 		outAggs[i].Agg = outAgg

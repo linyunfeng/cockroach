@@ -19,7 +19,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/props"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/props/physical"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
 // HasHoistableSubquery returns true if the given scalar expression contains a
@@ -339,7 +338,7 @@ func (c *CustomFuncs) ConstructNonApplyJoin(
 	case opt.AntiJoinOp, opt.AntiJoinApplyOp:
 		return c.f.ConstructAntiJoin(left, right, on, private)
 	}
-	panic(errors.AssertionFailedf("unexpected join operator: %v", log.Safe(joinOp)))
+	panic(errors.AssertionFailedf("unexpected join operator: %v", errors.Safe(joinOp)))
 }
 
 // ConstructApplyJoin constructs the apply join operator that corresponds
@@ -361,7 +360,7 @@ func (c *CustomFuncs) ConstructApplyJoin(
 	case opt.AntiJoinOp, opt.AntiJoinApplyOp:
 		return c.f.ConstructAntiJoinApply(left, right, on, private)
 	}
-	panic(errors.AssertionFailedf("unexpected join operator: %v", log.Safe(joinOp)))
+	panic(errors.AssertionFailedf("unexpected join operator: %v", errors.Safe(joinOp)))
 }
 
 // EnsureKey finds the shortest strong key for the input expression. If no
@@ -563,7 +562,7 @@ func (c *CustomFuncs) TranslateNonIgnoreAggs(
 				// we translate that into Count.
 				// TestAllAggsIgnoreNullsOrNullOnEmpty verifies that this assumption is
 				// true.
-				panic(errors.AssertionFailedf("can't decorrelate with aggregate %s", log.Safe(agg.Op())))
+				panic(errors.AssertionFailedf("can't decorrelate with aggregate %s", errors.Safe(agg.Op())))
 			}
 
 			if projections == nil {

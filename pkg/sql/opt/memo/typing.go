@@ -18,7 +18,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/builtins"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
 // InferType derives the type of the given scalar expression and stores it in
@@ -32,7 +31,7 @@ func InferType(mem *Memo, e opt.ScalarExpr) *types.T {
 
 	fn := typingFuncMap[e.Op()]
 	if fn == nil {
-		panic(errors.AssertionFailedf("type inference for %v is not yet implemented", log.Safe(e.Op())))
+		panic(errors.AssertionFailedf("type inference for %v is not yet implemented", errors.Safe(e.Op())))
 	}
 	return fn(e)
 }
@@ -49,7 +48,7 @@ func InferUnaryType(op opt.Operator, inputType *types.T) *types.T {
 			return o.ReturnType
 		}
 	}
-	panic(errors.AssertionFailedf("could not find type for unary expression %s", log.Safe(op)))
+	panic(errors.AssertionFailedf("could not find type for unary expression %s", errors.Safe(op)))
 }
 
 // InferBinaryType infers the return type of a binary expression, given the type
@@ -57,7 +56,7 @@ func InferUnaryType(op opt.Operator, inputType *types.T) *types.T {
 func InferBinaryType(op opt.Operator, leftType, rightType *types.T) *types.T {
 	o, ok := FindBinaryOverload(op, leftType, rightType)
 	if !ok {
-		panic(errors.AssertionFailedf("could not find type for binary expression %s", log.Safe(op)))
+		panic(errors.AssertionFailedf("could not find type for binary expression %s", errors.Safe(op)))
 	}
 	return o.ReturnType
 }
@@ -93,7 +92,7 @@ func BinaryOverloadExists(op opt.Operator, leftType, rightType *types.T) bool {
 func BinaryAllowsNullArgs(op opt.Operator, leftType, rightType *types.T) bool {
 	o, ok := FindBinaryOverload(op, leftType, rightType)
 	if !ok {
-		panic(errors.AssertionFailedf("could not find overload for binary expression %s", log.Safe(op)))
+		panic(errors.AssertionFailedf("could not find overload for binary expression %s", errors.Safe(op)))
 	}
 	return o.NullableArgs
 }
@@ -224,7 +223,7 @@ func typeVariable(mem *Memo, e opt.ScalarExpr) *types.T {
 	variable := e.(*VariableExpr)
 	typ := mem.Metadata().ColumnMeta(variable.Col).Type
 	if typ == nil {
-		panic(errors.AssertionFailedf("column %d does not have type", log.Safe(variable.Col)))
+		panic(errors.AssertionFailedf("column %d does not have type", errors.Safe(variable.Col)))
 	}
 	return typ
 }

@@ -24,7 +24,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util"
 	"github.com/cockroachdb/cockroach/pkg/util/json"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
 var statsAnnID = opt.NewTableAnnID()
@@ -244,7 +243,7 @@ func (sb *statisticsBuilder) colStatFromInput(colSet opt.ColSet, e RelExpr) *pro
 			if intersectsRight {
 				// TODO(radu): what if both sides have columns in colSet?
 				panic(errors.AssertionFailedf(
-					"colSet %v contains both left and right columns", log.Safe(colSet),
+					"colSet %v contains both left and right columns", errors.Safe(colSet),
 				))
 			}
 			if zigzagJoin != nil {
@@ -266,7 +265,7 @@ func (sb *statisticsBuilder) colStatFromInput(colSet opt.ColSet, e RelExpr) *pro
 		return &props.ColumnStatistic{Cols: colSet, DistinctCount: 1}
 	}
 
-	panic(errors.AssertionFailedf("unsupported operator type %s", log.Safe(e.Op())))
+	panic(errors.AssertionFailedf("unsupported operator type %s", errors.Safe(e.Op())))
 }
 
 // colStat gets a column statistic for the given set of columns if it exists.
@@ -355,7 +354,7 @@ func (sb *statisticsBuilder) colStat(colSet opt.ColSet, e RelExpr) *props.Column
 		panic(errors.AssertionFailedf("FakeRelOp does not contain col stat for %v", colSet))
 	}
 
-	panic(errors.AssertionFailedf("unrecognized relational expression type: %v", log.Safe(e.Op())))
+	panic(errors.AssertionFailedf("unrecognized relational expression type: %v", errors.Safe(e.Op())))
 }
 
 // colStatLeaf creates a column statistic for a given column set (if it doesn't
@@ -2140,7 +2139,8 @@ func (sb *statisticsBuilder) copyColStat(
 ) *props.ColumnStatistic {
 	if !inputColStat.Cols.SubsetOf(colSet) {
 		panic(errors.AssertionFailedf(
-			"copyColStat colSet: %v inputColSet: %v\n", log.Safe(colSet), log.Safe(inputColStat.Cols),
+			"copyColStat colSet: %v inputColSet: %v\n",
+			errors.Safe(colSet), errors.Safe(inputColStat.Cols),
 		))
 	}
 	colStat, _ := s.ColStats.Add(colSet)

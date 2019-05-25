@@ -28,7 +28,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util"
 	"github.com/cockroachdb/cockroach/pkg/util/json"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
 // CustomFuncs contains all the custom match and replace functions used by
@@ -1209,7 +1208,7 @@ func (c *CustomFuncs) CommuteInequality(
 	case opt.LtOp:
 		return c.f.ConstructGt(right, left)
 	}
-	panic(errors.AssertionFailedf("called commuteInequality with operator %s", log.Safe(op)))
+	panic(errors.AssertionFailedf("called commuteInequality with operator %s", errors.Safe(op)))
 }
 
 // FindRedundantConjunct takes the left and right operands of an Or operator as
@@ -1408,7 +1407,7 @@ func (c *CustomFuncs) IsConstValueEqual(const1, const2 opt.ScalarExpr) bool {
 		datum2 := const2.(*memo.ConstExpr).Value
 		return datum1.Compare(c.f.evalCtx, datum2) == 0
 	default:
-		panic(errors.AssertionFailedf("unexpected Op type: %v", log.Safe(op1)))
+		panic(errors.AssertionFailedf("unexpected Op type: %v", errors.Safe(op1)))
 	}
 }
 
@@ -1498,7 +1497,7 @@ func (c *CustomFuncs) CastToCollatedString(str opt.ScalarExpr, locale string) op
 	case *tree.DCollatedString:
 		value = t.Contents
 	default:
-		panic(errors.AssertionFailedf("unexpected type for COLLATE: %T", log.Safe(str.(*memo.ConstExpr).Value)))
+		panic(errors.AssertionFailedf("unexpected type for COLLATE: %T", errors.Safe(str.(*memo.ConstExpr).Value)))
 	}
 
 	return c.f.ConstructConst(tree.NewDCollatedString(value, locale, &c.f.evalCtx.CollationEnv))

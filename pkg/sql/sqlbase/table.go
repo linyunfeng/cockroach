@@ -21,7 +21,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"golang.org/x/text/language"
 )
 
@@ -380,13 +379,13 @@ func (desc *TableDescriptor) collectConstraintInfo(
 			if err != nil {
 				return nil, errors.NewAssertionErrorWithWrappedErrf(err,
 					"error resolving table %d referenced in foreign key",
-					log.Safe(fk.Table))
+					errors.Safe(fk.Table))
 			}
 			otherIdx, err := other.FindIndexByID(fk.Index)
 			if err != nil {
 				return nil, errors.NewAssertionErrorWithWrappedErrf(err,
 					"error resolving index %d in table %s referenced in foreign key",
-					log.Safe(fk.Index), other.Name)
+					errors.Safe(fk.Index), other.Name)
 			}
 			detail.Details = fmt.Sprintf("%s.%v", other.Name, otherIdx.ColumnNames)
 			detail.ReferencedTable = other
@@ -414,7 +413,7 @@ func (desc *TableDescriptor) collectConstraintInfo(
 				col, err := desc.FindColumnByID(colID)
 				if err != nil {
 					return nil, errors.NewAssertionErrorWithWrappedErrf(err,
-						"error finding column %d in table %s", log.Safe(colID), desc.Name)
+						"error finding column %d in table %s", errors.Safe(colID), desc.Name)
 				}
 				detail.Columns = append(detail.Columns, col.Name)
 			}

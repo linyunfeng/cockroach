@@ -19,7 +19,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/props/physical"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/util"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
 // CheckExpr does sanity checking on an Expr. This code is called in testrace
@@ -79,13 +78,13 @@ func (m *Memo) checkExpr(e opt.Expr) {
 
 			// Check that column is not both passthrough and synthesized.
 			if t.Passthrough.Contains(int(item.Col)) {
-				panic(errors.AssertionFailedf("both passthrough and synthesized have column %d", log.Safe(item.Col)))
+				panic(errors.AssertionFailedf("both passthrough and synthesized have column %d", errors.Safe(item.Col)))
 			}
 
 			// Check that columns aren't passed through in projection expressions.
 			if v, ok := item.Element.(*VariableExpr); ok {
 				if v.Col == item.Col {
-					panic(errors.AssertionFailedf("projection passes through column %d", log.Safe(item.Col)))
+					panic(errors.AssertionFailedf("projection passes through column %d", errors.Safe(item.Col)))
 				}
 			}
 		}
@@ -104,7 +103,7 @@ func (m *Memo) checkExpr(e opt.Expr) {
 
 			default:
 				if !opt.IsAggregateOp(scalar) {
-					panic(errors.AssertionFailedf("aggregate contains illegal op: %s", log.Safe(scalar.Op())))
+					panic(errors.AssertionFailedf("aggregate contains illegal op: %s", errors.Safe(scalar.Op())))
 				}
 			}
 		}
@@ -130,7 +129,7 @@ func (m *Memo) checkExpr(e opt.Expr) {
 			case opt.FirstAggOp, opt.ConstAggOp:
 
 			default:
-				panic(errors.AssertionFailedf("distinct-on contains %s", log.Safe(item.Agg.Op())))
+				panic(errors.AssertionFailedf("distinct-on contains %s", errors.Safe(item.Agg.Op())))
 			}
 		}
 
@@ -139,7 +138,7 @@ func (m *Memo) checkExpr(e opt.Expr) {
 		for _, item := range *t.Child(1).(*AggregationsExpr) {
 			switch item.Agg.Op() {
 			case opt.FirstAggOp:
-				panic(errors.AssertionFailedf("group-by contains %s", log.Safe(item.Agg.Op())))
+				panic(errors.AssertionFailedf("group-by contains %s", errors.Safe(item.Agg.Op())))
 			}
 		}
 
@@ -202,7 +201,7 @@ func (m *Memo) checkExpr(e opt.Expr) {
 			for i := 0; i < e.ChildCount(); i++ {
 				child := e.Child(i)
 				if opt.IsListItemOp(child) {
-					panic(errors.AssertionFailedf("non-list op contains item op: %s", log.Safe(child.Op())))
+					panic(errors.AssertionFailedf("non-list op contains item op: %s", errors.Safe(child.Op())))
 				}
 			}
 		}
@@ -210,7 +209,7 @@ func (m *Memo) checkExpr(e opt.Expr) {
 		if e.Op() == opt.StringAggOp && !CanExtractConstDatum(e.Child(1)) {
 			panic(errors.AssertionFailedf(
 				"second argument to StringAggOp must always be constant, but got %s",
-				log.Safe(e.Child(1).Op()),
+				errors.Safe(e.Child(1).Op()),
 			))
 		}
 
@@ -226,7 +225,7 @@ func (m *Memo) checkExpr(e opt.Expr) {
 func (m *Memo) checkColListLen(colList opt.ColList, expectedLen int, listName string) {
 	if len(colList) != expectedLen {
 		panic(errors.AssertionFailedf("column list %s expected length = %d, actual length = %d",
-			listName, log.Safe(expectedLen), len(colList)))
+			listName, errors.Safe(expectedLen), len(colList)))
 	}
 }
 
@@ -260,7 +259,7 @@ func checkExprOrdering(e opt.Expr) {
 	if outCols := e.(RelExpr).Relational().OutputCols; !ordering.SubsetOfCols(outCols) {
 		panic(errors.AssertionFailedf(
 			"invalid ordering %v (op: %s, outcols: %v)",
-			log.Safe(ordering), log.Safe(e.Op()), log.Safe(outCols),
+			errors.Safe(ordering), errors.Safe(e.Op()), errors.Safe(outCols),
 		))
 	}
 }

@@ -19,7 +19,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/memo"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
 type buildScalarCtx struct {
@@ -146,7 +145,7 @@ func (b *Builder) indexedVar(
 			}
 			return expr
 		}
-		panic(errors.AssertionFailedf("cannot map variable %d to an indexed var", log.Safe(colID)))
+		panic(errors.AssertionFailedf("cannot map variable %d to an indexed var", errors.Safe(colID)))
 	}
 	return ctx.ivh.IndexedVarWithType(idx, md.ColumnMeta(colID).Type)
 }
@@ -215,7 +214,7 @@ func (b *Builder) buildBoolean(ctx *buildScalarCtx, scalar opt.ScalarExpr) (tree
 		return b.buildScalar(ctx, scalar.Child(0).(opt.ScalarExpr))
 
 	default:
-		panic(errors.AssertionFailedf("invalid op %s", log.Safe(scalar.Op())))
+		panic(errors.AssertionFailedf("invalid op %s", errors.Safe(scalar.Op())))
 	}
 }
 

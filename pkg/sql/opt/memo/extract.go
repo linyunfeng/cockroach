@@ -16,7 +16,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
 // This file contains various helper functions that extract useful information
@@ -132,7 +131,7 @@ func ExtractAggInputColumns(e opt.ScalarExpr) opt.ColSet {
 		res.Add(int(variable.Col))
 		return res
 	}
-	panic(errors.AssertionFailedf("unhandled aggregate input %T", log.Safe(arg)))
+	panic(errors.AssertionFailedf("unhandled aggregate input %T", errors.Safe(arg)))
 }
 
 // ExtractVarFromAggInput is given an argument to an Aggregate and returns the

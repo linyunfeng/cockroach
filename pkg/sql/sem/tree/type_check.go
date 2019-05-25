@@ -26,7 +26,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util/duration"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 	"github.com/cockroachdb/cockroach/pkg/util/timeutil"
 	"golang.org/x/text/language"
@@ -243,7 +242,7 @@ func (err placeholderTypeAmbiguityErr) Error() string {
 
 func unexpectedTypeError(expr Expr, want, got *types.T) error {
 	return pgerror.Newf(pgerror.CodeInvalidParameterValueError,
-		"expected %s to be of type %s, found type %s", expr, log.Safe(want), log.Safe(got))
+		"expected %s to be of type %s, found type %s", expr, errors.Safe(want), errors.Safe(got))
 }
 
 func decorateTypeCheckError(err error, format string, a ...interface{}) error {
@@ -744,7 +743,7 @@ func (sc *SemaContext) checkFunctionUsage(expr *FuncExpr, def *FunctionDefinitio
 	}
 	if def.Private {
 		return pgerror.Wrapf(errPrivateFunction, pgerror.CodeReservedNameError,
-			"%s()", log.Safe(def.Name))
+			"%s()", errors.Safe(def.Name))
 	}
 	if sc == nil {
 		// We can't check anything further. Give up.
@@ -1002,7 +1001,7 @@ func (f *WindowFrame) TypeCheck(ctx *SemaContext, windowDef *WindowDef) error {
 		// Non-nullity and non-negativity will be checked later.
 		requiredType = types.Int
 	default:
-		return errors.AssertionFailedf("unexpected WindowFrameMode: %d", log.Safe(f.Mode))
+		return errors.AssertionFailedf("unexpected WindowFrameMode: %d", errors.Safe(f.Mode))
 	}
 	if startBound.HasOffset() {
 		typedStartOffsetExpr, err := typeCheckAndRequire(ctx, startBound.OffsetExpr, requiredType, "window frame start")
@@ -2246,7 +2245,7 @@ func (v *placeholderAnnotationVisitor) VisitPre(expr Expr) (recurse bool, newExp
 				}
 
 			default:
-				panic(errors.AssertionFailedf("unhandled state: %v", log.Safe(v.state[arg.Idx])))
+				panic(errors.AssertionFailedf("unhandled state: %v", errors.Safe(v.state[arg.Idx])))
 			}
 			return false, expr
 		}

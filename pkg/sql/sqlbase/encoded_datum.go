@@ -21,7 +21,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util/encoding"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
 // EncodingDirToDatumEncoding returns an equivalent DatumEncoding for the given
@@ -227,15 +226,15 @@ func (ed *EncDatum) EnsureDecoded(typ *types.T, a *DatumAlloc) error {
 	case DatumEncoding_VALUE:
 		ed.Datum, rem, err = DecodeTableValue(a, typ, ed.encoded)
 	default:
-		return errors.AssertionFailedf("unknown encoding %d", log.Safe(ed.encoding))
+		return errors.AssertionFailedf("unknown encoding %d", errors.Safe(ed.encoding))
 	}
 	if err != nil {
-		return errors.Wrapf(err, "error decoding %d bytes", log.Safe(len(ed.encoded)))
+		return errors.Wrapf(err, "error decoding %d bytes", errors.Safe(len(ed.encoded)))
 	}
 	if len(rem) != 0 {
 		ed.Datum = nil
 		return errors.AssertionFailedf(
-			"%d trailing bytes in encoded value: %+v", log.Safe(len(rem)), rem)
+			"%d trailing bytes in encoded value: %+v", errors.Safe(len(rem)), rem)
 	}
 	return nil
 }

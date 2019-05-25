@@ -21,7 +21,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/server/telemetry"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
 // Overload is one of the overloads of a built-in function.
@@ -788,7 +787,7 @@ func checkReturn(
 			if des != nil && !typ.ResolvedType().Equivalent(des) {
 				return false, nil, nil, errors.AssertionFailedf(
 					"desired constant value type %s but set type %s",
-					log.Safe(des), log.Safe(typ.ResolvedType()),
+					errors.Safe(des), errors.Safe(typ.ResolvedType()),
 				)
 			}
 			s.typedExprs[i] = typ

@@ -20,7 +20,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util/encoding"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
 // DecodeIndexKeyToCols decodes an index key into the idx'th position of the
@@ -153,7 +152,7 @@ func decodeTableKeyToCol(
 	vec coldata.Vec, idx uint16, valType *types.T, key []byte, dir sqlbase.IndexDescriptor_Direction,
 ) ([]byte, error) {
 	if (dir != sqlbase.IndexDescriptor_ASC) && (dir != sqlbase.IndexDescriptor_DESC) {
-		return nil, errors.AssertionFailedf("invalid direction: %d", log.Safe(dir))
+		return nil, errors.AssertionFailedf("invalid direction: %d", errors.Safe(dir))
 	}
 	var isNull bool
 	if key, isNull = encoding.DecodeIfNull(key); isNull {
@@ -221,7 +220,7 @@ func decodeTableKeyToCol(
 		}
 		vec.Int64()[idx] = t
 	default:
-		return rkey, errors.AssertionFailedf("unsupported type %+v", log.Safe(valType))
+		return rkey, errors.AssertionFailedf("unsupported type %+v", errors.Safe(valType))
 	}
 	return rkey, err
 }
@@ -234,7 +233,7 @@ func skipTableKey(
 	valType *types.T, key []byte, dir sqlbase.IndexDescriptor_Direction,
 ) ([]byte, error) {
 	if (dir != sqlbase.IndexDescriptor_ASC) && (dir != sqlbase.IndexDescriptor_DESC) {
-		return nil, errors.AssertionFailedf("invalid direction: %d", log.Safe(dir))
+		return nil, errors.AssertionFailedf("invalid direction: %d", errors.Safe(dir))
 	}
 	var isNull bool
 	if key, isNull = encoding.DecodeIfNull(key); isNull {
@@ -268,7 +267,7 @@ func skipTableKey(
 			rkey, _, err = encoding.DecodeDecimalDescending(key, nil)
 		}
 	default:
-		return key, errors.AssertionFailedf("unsupported type %+v", log.Safe(valType))
+		return key, errors.AssertionFailedf("unsupported type %+v", errors.Safe(valType))
 	}
 	if err != nil {
 		return key, err
@@ -324,7 +323,7 @@ func UnmarshalColumnValueToCol(
 		v, err = value.GetInt()
 		vec.Int64()[idx] = v
 	default:
-		return errors.AssertionFailedf("unsupported column type: %s", log.Safe(typ.Family()))
+		return errors.AssertionFailedf("unsupported column type: %s", errors.Safe(typ.Family()))
 	}
 	return err
 }

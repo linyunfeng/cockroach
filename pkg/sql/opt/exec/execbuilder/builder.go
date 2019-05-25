@@ -18,7 +18,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/exec"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/memo"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
 // Builder constructs a tree of execution nodes (exec.Node) from an optimized
@@ -93,7 +92,7 @@ func (b *Builder) Build() (_ exec.Plan, err error) {
 func (b *Builder) build(e opt.Expr) (exec.Node, error) {
 	rel, ok := e.(memo.RelExpr)
 	if !ok {
-		return nil, errors.AssertionFailedf("building execution for non-relational operator %s", log.Safe(e.Op()))
+		return nil, errors.AssertionFailedf("building execution for non-relational operator %s", errors.Safe(e.Op()))
 	}
 	plan, err := b.buildRelational(rel)
 	if err != nil {
@@ -108,7 +107,7 @@ func (b *Builder) build(e opt.Expr) (exec.Node, error) {
 func (b *Builder) BuildScalar(ivh *tree.IndexedVarHelper) (tree.TypedExpr, error) {
 	scalar, ok := b.e.(opt.ScalarExpr)
 	if !ok {
-		return nil, errors.AssertionFailedf("BuildScalar cannot be called for non-scalar operator %s", log.Safe(b.e.Op()))
+		return nil, errors.AssertionFailedf("BuildScalar cannot be called for non-scalar operator %s", errors.Safe(b.e.Op()))
 	}
 	ctx := buildScalarCtx{ivh: *ivh}
 	for i := 0; i < ivh.NumVars(); i++ {

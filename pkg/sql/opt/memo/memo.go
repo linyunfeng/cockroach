@@ -21,7 +21,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/props/physical"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sessiondata"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
 // Memo is a data structure for efficiently storing a forest of query plans.
@@ -305,7 +304,7 @@ func (m *Memo) SetBestProps(
 				"cannot overwrite %s / %s (%.9g) with %s / %s (%.9g)",
 				e.RequiredPhysical(),
 				e.ProvidedPhysical(),
-				log.Safe(e.Cost()),
+				errors.Safe(e.Cost()),
 				required.String(),
 				provided.String(), // Call String() so provided doesn't escape.
 				cost,

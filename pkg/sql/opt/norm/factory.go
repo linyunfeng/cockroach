@@ -19,7 +19,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/props/physical"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
 // ReplaceFunc is the callback function passed to the Factory.Replace method.
@@ -319,7 +318,7 @@ func (f *Factory) ConstructJoin(
 	case opt.AntiJoinApplyOp:
 		return f.ConstructAntiJoinApply(left, right, on, private)
 	}
-	panic(errors.AssertionFailedf("unexpected join operator: %v", log.Safe(joinOp)))
+	panic(errors.AssertionFailedf("unexpected join operator: %v", errors.Safe(joinOp)))
 }
 
 // ConstructConstVal constructs one of the constant value operators from the

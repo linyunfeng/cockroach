@@ -16,7 +16,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/constraint"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
 // AvailableRuleProps is a bit set that indicates when lazily-populated Rule
@@ -443,11 +442,11 @@ func (r *Relational) Verify() {
 
 	if !r.NotNullCols.SubsetOf(r.OutputCols) {
 		panic(errors.AssertionFailedf("not null cols %s not a subset of output cols %s",
-			log.Safe(r.NotNullCols), log.Safe(r.OutputCols)))
+			errors.Safe(r.NotNullCols), errors.Safe(r.OutputCols)))
 	}
 	if r.OuterCols.Intersects(r.OutputCols) {
 		panic(errors.AssertionFailedf("outer cols %s intersect output cols %s",
-			log.Safe(r.OuterCols), log.Safe(r.OutputCols)))
+			errors.Safe(r.OuterCols), errors.Safe(r.OutputCols)))
 	}
 	if r.FuncDeps.HasMax1Row() {
 		if r.Cardinality.Max > 1 {
@@ -462,12 +461,12 @@ func (r *Relational) Verify() {
 // the same group).
 func (r *Relational) VerifyAgainst(other *Relational) {
 	if !r.OutputCols.Equals(other.OutputCols) {
-		panic(errors.AssertionFailedf("output cols mismatch: %s vs %s", log.Safe(r.OutputCols), log.Safe(other.OutputCols)))
+		panic(errors.AssertionFailedf("output cols mismatch: %s vs %s", errors.Safe(r.OutputCols), errors.Safe(other.OutputCols)))
 	}
 
 	if r.Cardinality.Max < other.Cardinality.Min ||
 		r.Cardinality.Min > other.Cardinality.Max {
-		panic(errors.AssertionFailedf("cardinality mismatch: %s vs %s", log.Safe(r.Cardinality), log.Safe(other.Cardinality)))
+		panic(errors.AssertionFailedf("cardinality mismatch: %s vs %s", errors.Safe(r.Cardinality), errors.Safe(other.Cardinality)))
 	}
 
 	// NotNullCols, FuncDeps are best effort, so they might differ.

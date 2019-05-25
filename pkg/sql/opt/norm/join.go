@@ -19,7 +19,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/props"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/util"
-	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
 // ----------------------------------------------------------------------
@@ -50,7 +49,7 @@ func (c *CustomFuncs) ConstructNonLeftJoin(
 	case opt.FullJoinApplyOp:
 		return c.f.ConstructRightJoinApply(left, right, on, private)
 	}
-	panic(errors.AssertionFailedf("unexpected join operator: %v", log.Safe(joinOp)))
+	panic(errors.AssertionFailedf("unexpected join operator: %v", errors.Safe(joinOp)))
 }
 
 // ConstructNonRightJoin maps a right join to an inner join and a full join to a
@@ -69,7 +68,7 @@ func (c *CustomFuncs) ConstructNonRightJoin(
 	case opt.FullJoinApplyOp:
 		return c.f.ConstructLeftJoinApply(left, right, on, private)
 	}
-	panic(errors.AssertionFailedf("unexpected join operator: %v", log.Safe(joinOp)))
+	panic(errors.AssertionFailedf("unexpected join operator: %v", errors.Safe(joinOp)))
 }
 
 // SimplifyNotNullEquality simplifies an expression of the following form:
