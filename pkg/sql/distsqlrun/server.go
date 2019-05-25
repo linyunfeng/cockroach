@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/cockroachdb/cockroach/pkg/base"
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/gossip"
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/jobs"
@@ -28,7 +29,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/settings"
 	"github.com/cockroachdb/cockroach/pkg/settings/cluster"
 	"github.com/cockroachdb/cockroach/pkg/sql/distsqlpb"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sessiondata"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
@@ -45,7 +45,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/timeutil"
 	"github.com/cockroachdb/cockroach/pkg/util/tracing"
 	opentracing "github.com/opentracing/opentracing-go"
-	"github.com/pkg/errors"
 )
 
 // Version identifies the distsqlrun protocol version.
@@ -306,7 +305,7 @@ func (ds *ServerImpl) setupFlow(
 	}
 	nodeID := ds.ServerConfig.NodeID.Get()
 	if nodeID == 0 {
-		return nil, nil, pgerror.AssertionFailedf("setupFlow called before the NodeID was resolved")
+		return nil, nil, errors.AssertionFailedf("setupFlow called before the NodeID was resolved")
 	}
 
 	const opName = "flow"
@@ -379,7 +378,7 @@ func (ds *ServerImpl) setupFlow(
 		case distsqlpb.BytesEncodeFormat_BASE64:
 			be = sessiondata.BytesEncodeBase64
 		default:
-			return nil, nil, pgerror.AssertionFailedf("unknown byte encode format: %s",
+			return nil, nil, errors.AssertionFailedf("unknown byte encode format: %s",
 				log.Safe(req.EvalContext.BytesEncodeFormat))
 		}
 		sd := &sessiondata.SessionData{
@@ -526,7 +525,7 @@ func (ds *ServerImpl) RunSyncFlow(stream distsqlpb.DistSQL_RunSyncFlowServer) er
 		return err
 	}
 	if firstMsg.SetupFlowRequest == nil {
-		return pgerror.AssertionFailedf("first message in RunSyncFlow doesn't contain SetupFlowRequest")
+		return errors.AssertionFailedf("first message in RunSyncFlow doesn't contain SetupFlowRequest")
 	}
 	req := firstMsg.SetupFlowRequest
 	ctx, f, err := ds.SetupSyncFlow(stream.Context(), &ds.memMonitor, req, mbox)
@@ -582,12 +581,12 @@ func (ds *ServerImpl) flowStreamInt(
 	msg, err := stream.Recv()
 	if err != nil {
 		if err == io.EOF {
-			return pgerror.AssertionFailedf("missing header message")
+			return errors.AssertionFailedf("missing header message")
 		}
 		return err
 	}
 	if msg.Header == nil {
-		return pgerror.AssertionFailedf("no header in first message")
+		return errors.AssertionFailedf("no header in first message")
 	}
 	flowID := msg.Header.FlowID
 	streamID := msg.Header.StreamID

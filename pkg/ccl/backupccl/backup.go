@@ -271,7 +271,7 @@ func allSQLDescriptors(ctx context.Context, txn *client.Txn) ([]sqlbase.Descript
 	sqlDescs := make([]sqlbase.Descriptor, len(rows))
 	for i, row := range rows {
 		if err := row.ValueProto(&sqlDescs[i]); err != nil {
-			return nil, pgerror.NewAssertionErrorWithWrappedErrf(err,
+			return nil, errors.NewAssertionErrorWithWrappedErrf(err,
 				"%s: unable to unmarshal SQL descriptor", row.Key)
 		}
 	}
@@ -311,14 +311,14 @@ func ensureInterleavesIncluded(tables []*sqlbase.TableDescriptor) error {
 func allRangeDescriptors(ctx context.Context, txn *client.Txn) ([]roachpb.RangeDescriptor, error) {
 	rows, err := txn.Scan(ctx, keys.Meta2Prefix, keys.MetaMax, 0)
 	if err != nil {
-		return nil, pgerror.NewAssertionErrorWithWrappedErrf(err,
+		return nil, errors.NewAssertionErrorWithWrappedErrf(err,
 			"unable to scan range descriptors")
 	}
 
 	rangeDescs := make([]roachpb.RangeDescriptor, len(rows))
 	for i, row := range rows {
 		if err := row.ValueProto(&rangeDescs[i]); err != nil {
-			return nil, pgerror.NewAssertionErrorWithWrappedErrf(err,
+			return nil, errors.NewAssertionErrorWithWrappedErrf(err,
 				"%s: unable to unmarshal range descriptor", row.Key)
 		}
 	}
@@ -341,7 +341,7 @@ func spansForAllTableIndexes(
 	for _, table := range tables {
 		for _, index := range table.AllNonDropIndexes() {
 			if err := sstIntervalTree.Insert(intervalSpan(table.IndexSpan(index.ID)), false); err != nil {
-				panic(pgerror.NewAssertionErrorWithWrappedErrf(err, "IndexSpan"))
+				panic(errors.NewAssertionErrorWithWrappedErrf(err, "IndexSpan"))
 			}
 			added[tableAndIndex{tableID: table.ID, indexID: index.ID}] = true
 		}
@@ -355,7 +355,7 @@ func spansForAllTableIndexes(
 				key := tableAndIndex{tableID: tbl.ID, indexID: idx.ID}
 				if !added[key] {
 					if err := sstIntervalTree.Insert(intervalSpan(tbl.IndexSpan(idx.ID)), false); err != nil {
-						panic(pgerror.NewAssertionErrorWithWrappedErrf(err, "IndexSpan"))
+						panic(errors.NewAssertionErrorWithWrappedErrf(err, "IndexSpan"))
 					}
 					added[key] = true
 				}

@@ -15,6 +15,7 @@ package execbuilder
 import (
 	"fmt"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/server/telemetry"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/exec"
@@ -29,7 +30,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util"
 	"github.com/cockroachdb/cockroach/pkg/util/encoding"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
-	"github.com/pkg/errors"
 )
 
 type execPlan struct {
@@ -88,7 +88,7 @@ func (ep *execPlan) makeBuildScalarCtx() buildScalarCtx {
 func (ep *execPlan) getColumnOrdinal(col opt.ColumnID) exec.ColumnOrdinal {
 	ord, ok := ep.outputCols.Get(int(col))
 	if !ok {
-		panic(pgerror.AssertionFailedf("column %d not in input", log.Safe(col)))
+		panic(errors.AssertionFailedf("column %d not in input", log.Safe(col)))
 	}
 	return exec.ColumnOrdinal(ord)
 }
@@ -268,7 +268,7 @@ func (b *Builder) buildRelational(e memo.RelExpr) (execPlan, error) {
 			execCols.Add(key)
 		})
 		if !execCols.Equals(optCols) {
-			return execPlan{}, pgerror.AssertionFailedf(
+			return execPlan{}, errors.AssertionFailedf(
 				"exec columns do not match opt columns: expected %v, got %v", optCols, execCols)
 		}
 	}
@@ -788,7 +788,7 @@ func joinOpToJoinType(op opt.Operator) sqlbase.JoinType {
 		return sqlbase.LeftAntiJoin
 
 	default:
-		panic(pgerror.AssertionFailedf("not a join op %s", log.Safe(op)))
+		panic(errors.AssertionFailedf("not a join op %s", log.Safe(op)))
 	}
 }
 
@@ -959,7 +959,7 @@ func (b *Builder) buildGroupByInput(groupBy memo.RelExpr) (execPlan, error) {
 	for colID, ok := neededCols.Next(0); ok; colID, ok = neededCols.Next(colID + 1) {
 		ordinal, ordOk := input.outputCols.Get(colID)
 		if !ordOk {
-			panic(pgerror.AssertionFailedf("needed column not produced by group-by input"))
+			panic(errors.AssertionFailedf("needed column not produced by group-by input"))
 		}
 		newOutputCols.Set(colID, len(cols))
 		cols = append(cols, exec.ColumnOrdinal(ordinal))
@@ -1038,7 +1038,7 @@ func (b *Builder) buildSetOp(set memo.RelExpr) (execPlan, error) {
 	case opt.ExceptAllOp:
 		typ, all = tree.ExceptOp, true
 	default:
-		panic(pgerror.AssertionFailedf("invalid operator %s", log.Safe(set.Op())))
+		panic(errors.AssertionFailedf("invalid operator %s", log.Safe(set.Op())))
 	}
 
 	node, err := b.factory.ConstructSetOp(typ, all, left.root, right.root)
@@ -1411,7 +1411,7 @@ func (b *Builder) buildFrame(input execPlan, w *memo.WindowsItem) (*tree.WindowF
 	}
 	if boundExpr, ok := b.extractFromOffset(w.Function); ok {
 		if !b.isOffsetMode(w.Frame.StartBoundType) {
-			panic(pgerror.AssertionFailedf("expected offset to only be present in offset mode"))
+			panic(errors.AssertionFailedf("expected offset to only be present in offset mode"))
 		}
 		offset, err := b.buildScalar(&scalarCtx, boundExpr)
 		if err != nil {
@@ -1422,7 +1422,7 @@ func (b *Builder) buildFrame(input execPlan, w *memo.WindowsItem) (*tree.WindowF
 
 	if boundExpr, ok := b.extractToOffset(w.Function); ok {
 		if !b.isOffsetMode(newDef.Bounds.EndBound.BoundType) {
-			panic(pgerror.AssertionFailedf("expected offset to only be present in offset mode"))
+			panic(errors.AssertionFailedf("expected offset to only be present in offset mode"))
 		}
 		offset, err := b.buildScalar(&scalarCtx, boundExpr)
 		if err != nil {
@@ -1513,7 +1513,7 @@ func (b *Builder) buildWindow(w *memo.WindowExpr) (execPlan, error) {
 		if ok {
 			f, ok := filter.(*memo.VariableExpr)
 			if !ok {
-				panic(pgerror.AssertionFailedf("expected FILTER expression to be a VariableExpr"))
+				panic(errors.AssertionFailedf("expected FILTER expression to be a VariableExpr"))
 			}
 			filterIdxs[i], _ = input.outputCols.Get(int(f.Col))
 

@@ -13,6 +13,7 @@
 package sql
 
 import (
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sessiondata"
@@ -39,7 +40,7 @@ func fillInPlaceholders(
 
 		typ, ok := ps.ValueType(idx)
 		if !ok {
-			return nil, pgerror.AssertionFailedf("no type for placeholder %s", idx)
+			return nil, errors.AssertionFailedf("no type for placeholder %s", idx)
 		}
 		typedExpr, err := sqlbase.SanitizeVarFreeExpr(
 			e, typ, "EXECUTE parameter", /* context */

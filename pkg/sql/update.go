@@ -197,7 +197,7 @@ func (p *planner) Update(
 				if !requestedColSet.Contains(int(colID)) {
 					col, err := desc.FindColumnByID(colID)
 					if err != nil {
-						return nil, pgerror.NewAssertionErrorWithWrappedErrf(err,
+						return nil, errors.NewAssertionErrorWithWrappedErrf(err,
 							"error finding column %d in table %s",
 							colID, desc.Name)
 					}
@@ -346,7 +346,7 @@ func (p *planner) Update(
 				currentUpdateIdx += len(setExpr.Names)
 
 			default:
-				return nil, pgerror.AssertionFailedf("assigning to tuple with expression that is neither a tuple nor a subquery: %s", setExpr.Expr)
+				return nil, errors.AssertionFailedf("assigning to tuple with expression that is neither a tuple nor a subquery: %s", setExpr.Expr)
 			}
 
 		} else {

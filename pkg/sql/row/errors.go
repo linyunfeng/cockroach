@@ -16,6 +16,7 @@ import (
 	"context"
 	"strings"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
@@ -42,7 +43,7 @@ func (f *singleKVFetcher) nextBatch(
 
 // getRangesInfo implements the kvBatchFetcher interface.
 func (f *singleKVFetcher) getRangesInfo() []roachpb.RangeInfo {
-	panic(pgerror.AssertionFailedf("getRangesInfo() called on singleKVFetcher"))
+	panic(errors.AssertionFailedf("getRangesInfo() called on singleKVFetcher"))
 }
 
 // ConvertBatchError returns a user friendly constraint violation error.
@@ -55,7 +56,7 @@ func ConvertBatchError(
 	}
 	j := origPErr.Index.Index
 	if j >= int32(len(b.Results)) {
-		return pgerror.AssertionFailedf("index %d outside of results: %+v", j, b.Results)
+		return errors.AssertionFailedf("index %d outside of results: %+v", j, b.Results)
 	}
 	result := b.Results[j]
 	if cErr, ok := origPErr.GetDetail().(*roachpb.ConditionFailedError); ok && len(result.Rows) > 0 {

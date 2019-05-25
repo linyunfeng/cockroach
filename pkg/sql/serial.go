@@ -16,6 +16,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/server/telemetry"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
@@ -82,7 +83,7 @@ func (p *planner) processSerialInColumnDef(
 
 	default:
 		return nil, nil, nil, nil,
-			pgerror.AssertionFailedf("unknown serial normalization mode: %s", serialNormalizationMode)
+			errors.AssertionFailedf("unknown serial normalization mode: %s", serialNormalizationMode)
 	}
 
 	// Clear the IsSerial bit now that it's been remapped.

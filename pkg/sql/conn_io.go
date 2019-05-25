@@ -19,8 +19,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/parser"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgwirebase"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sessiondata"
@@ -398,7 +398,7 @@ func (buf *StmtBuf) Push(ctx context.Context, cmd Command) error {
 	buf.mu.Lock()
 	defer buf.mu.Unlock()
 	if buf.mu.closed {
-		return pgerror.AssertionFailedf("buffer is closed")
+		return errors.AssertionFailedf("buffer is closed")
 	}
 	buf.mu.data = append(buf.mu.data, cmd)
 	buf.mu.lastPos++
@@ -432,7 +432,7 @@ func (buf *StmtBuf) curCmd() (Command, CmdPos, error) {
 			return buf.mu.data[cmdIdx], curPos, nil
 		}
 		if cmdIdx != len(buf.mu.data) {
-			return nil, 0, pgerror.AssertionFailedf(
+			return nil, 0, errors.AssertionFailedf(
 				"can only wait for next command; corrupt cursor: %d", log.Safe(curPos))
 		}
 		// Wait for the next Command to arrive to the buffer.
@@ -448,7 +448,7 @@ func (buf *StmtBuf) curCmd() (Command, CmdPos, error) {
 // error.
 func (buf *StmtBuf) translatePosLocked(pos CmdPos) (int, error) {
 	if pos < buf.mu.startPos {
-		return 0, pgerror.AssertionFailedf(
+		return 0, errors.AssertionFailedf(
 			"position %d no longer in buffer (buffer starting at %d)",
 			log.Safe(pos), log.Safe(buf.mu.startPos))
 	}
@@ -510,7 +510,7 @@ func (buf *StmtBuf) seekToNextBatch() error {
 	}
 	if cmdIdx == len(buf.mu.data) {
 		buf.mu.Unlock()
-		return pgerror.AssertionFailedf("invalid seek start point")
+		return errors.AssertionFailedf("invalid seek start point")
 	}
 	buf.mu.Unlock()
 

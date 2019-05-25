@@ -282,7 +282,7 @@ func (n *alterTableNode) startExec(params runParams) error {
 				}
 
 			default:
-				return pgerror.AssertionFailedf(
+				return errors.AssertionFailedf(
 					"unsupported constraint: %T", t.ConstraintDef)
 			}
 
@@ -595,7 +595,7 @@ func (n *alterTableNode) startExec(params runParams) error {
 		case *tree.AlterTableInjectStats:
 			sd, ok := n.statsData[i]
 			if !ok {
-				return pgerror.AssertionFailedf("missing stats data")
+				return errors.AssertionFailedf("missing stats data")
 			}
 			if err := injectTableStats(params, n.tableDesc.TableDesc(), sd); err != nil {
 				return err
@@ -644,7 +644,7 @@ func (n *alterTableNode) startExec(params runParams) error {
 			descriptorChanged = true
 
 		default:
-			return pgerror.AssertionFailedf("unsupported alter command: %T", cmd)
+			return errors.AssertionFailedf("unsupported alter command: %T", cmd)
 		}
 
 		// Allocate IDs now, so new IDs are available to subsequent commands

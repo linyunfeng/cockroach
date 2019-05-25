@@ -16,6 +16,7 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/rowcontainer"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
@@ -52,7 +53,7 @@ func (p *planner) Values(
 	case *tree.ValuesClause:
 		n = t
 	default:
-		return nil, pgerror.AssertionFailedf("unhandled case in values: %T %v", origN, origN)
+		return nil, errors.AssertionFailedf("unhandled case in values: %T %v", origN, origN)
 	}
 
 	if len(n.Rows) == 0 {

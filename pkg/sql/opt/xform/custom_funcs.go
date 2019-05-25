@@ -13,6 +13,7 @@
 package xform
 
 import (
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/cat"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/constraint"
@@ -22,7 +23,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/ordering"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/props"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/props/physical"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util"
@@ -1164,7 +1164,7 @@ func (c *CustomFuncs) GenerateZigzagJoins(
 
 			if len(fixedValMap) != fixedCols.Len() {
 				if util.RaceEnabled {
-					panic(pgerror.AssertionFailedf(
+					panic(errors.AssertionFailedf(
 						"we inferred constant columns whose value we couldn't extract",
 					))
 				}

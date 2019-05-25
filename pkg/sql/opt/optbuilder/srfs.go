@@ -13,6 +13,7 @@
 package optbuilder
 
 import (
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/memo"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
@@ -54,7 +55,7 @@ func (s *srf) TypeCheck(ctx *tree.SemaContext, desired *types.T) (tree.TypedExpr
 
 // Eval is part of the tree.TypedExpr interface.
 func (s *srf) Eval(_ *tree.EvalContext) (tree.Datum, error) {
-	panic(pgerror.AssertionFailedf("srf must be replaced before evaluation"))
+	panic(errors.AssertionFailedf("srf must be replaced before evaluation"))
 }
 
 var _ tree.Expr = &srf{}

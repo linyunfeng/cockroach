@@ -15,12 +15,12 @@ package sqlbase
 import (
 	"context"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/parser"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util"
-	"github.com/pkg/errors"
 )
 
 // CheckHelper validates check constraints on rows, on INSERT and UPDATE.
@@ -207,7 +207,7 @@ func (c *CheckHelper) CheckEval(ctx *tree.EvalContext) error {
 // CheckInput reports a constraint violation error.
 func (c *CheckHelper) CheckInput(checkVals tree.Datums) error {
 	if len(checkVals) != c.checkSet.Len() {
-		return pgerror.AssertionFailedf(
+		return errors.AssertionFailedf(
 			"mismatched check constraint columns: expected %d, got %d", c.checkSet.Len(), len(checkVals))
 	}
 

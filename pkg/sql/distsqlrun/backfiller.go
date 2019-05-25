@@ -23,7 +23,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
 	"github.com/cockroachdb/cockroach/pkg/sql/backfill"
 	"github.com/cockroachdb/cockroach/pkg/sql/distsqlpb"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
@@ -235,7 +234,7 @@ func GetResumeSpans(
 	}
 
 	if mutationIdx == noIndex {
-		return nil, nil, 0, pgerror.AssertionFailedf(
+		return nil, nil, 0, errors.AssertionFailedf(
 			"mutation %d has completed", log.Safe(mutationID))
 	}
 
@@ -251,7 +250,7 @@ func GetResumeSpans(
 	}
 
 	if jobID == 0 {
-		return nil, nil, 0, pgerror.AssertionFailedf(
+		return nil, nil, 0, errors.AssertionFailedf(
 			"no job found for mutation %d", log.Safe(mutationID))
 	}
 
@@ -261,7 +260,7 @@ func GetResumeSpans(
 	}
 	details, ok := job.Details().(jobspb.SchemaChangeDetails)
 	if !ok {
-		return nil, nil, 0, pgerror.AssertionFailedf(
+		return nil, nil, 0, errors.AssertionFailedf(
 			"expected SchemaChangeDetails job type, got %T", job.Details())
 	}
 	// Return the resume spans from the job using the mutation idx.

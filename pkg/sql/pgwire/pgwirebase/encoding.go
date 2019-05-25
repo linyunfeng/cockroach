@@ -23,6 +23,7 @@ import (
 	"unicode/utf8"
 	"unsafe"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/lex"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
@@ -36,7 +37,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/uint128"
 	"github.com/jackc/pgx/pgtype"
 	"github.com/lib/pq/oid"
-	"github.com/pkg/errors"
 )
 
 const maxMessageSize = 1 << 24
@@ -592,7 +592,7 @@ func DecodeOidDatum(
 			}
 		}
 	default:
-		return nil, pgerror.AssertionFailedf(
+		return nil, errors.AssertionFailedf(
 			"unexpected format code: %d", log.Safe(code))
 	}
 
@@ -609,7 +609,7 @@ func DecodeOidDatum(
 		}
 		return tree.NewDName(string(b)), nil
 	default:
-		return nil, pgerror.AssertionFailedf(
+		return nil, errors.AssertionFailedf(
 			"unsupported OID %v with format code %s", log.Safe(id), log.Safe(code))
 	}
 }

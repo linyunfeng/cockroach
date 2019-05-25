@@ -22,10 +22,9 @@
 package tree
 
 import (
-	"errors"
 	"fmt"
 
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
 )
 
@@ -843,7 +842,7 @@ func (node *WindowFrameBound) Format(ctx *FmtCtx) {
 	case UnboundedFollowing:
 		ctx.WriteString("UNBOUNDED FOLLOWING")
 	default:
-		panic(pgerror.AssertionFailedf("unhandled case: %d", log.Safe(node.BoundType)))
+		panic(errors.AssertionFailedf("unhandled case: %d", log.Safe(node.BoundType)))
 	}
 }
 
@@ -857,7 +856,7 @@ func (node *WindowFrame) Format(ctx *FmtCtx) {
 	case GROUPS:
 		ctx.WriteString("GROUPS ")
 	default:
-		panic(pgerror.AssertionFailedf("unhandled case: %d", log.Safe(node.Mode)))
+		panic(errors.AssertionFailedf("unhandled case: %d", log.Safe(node.Mode)))
 	}
 	if node.Bounds.EndBound != nil {
 		ctx.WriteString("BETWEEN ")

@@ -13,8 +13,8 @@
 package optbuilder
 
 import (
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/memo"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 )
@@ -36,7 +36,7 @@ func (b *Builder) buildShowTrace(
 		b.synthesizeResultColumns(outScope, sqlbase.ShowReplicaTraceColumns)
 
 	default:
-		panic(pgerror.AssertionFailedf("SHOW %s not supported", showTrace.TraceType))
+		panic(errors.AssertionFailedf("SHOW %s not supported", showTrace.TraceType))
 	}
 
 	outScope.expr = b.factory.ConstructShowTraceForSession(&memo.ShowTracePrivate{

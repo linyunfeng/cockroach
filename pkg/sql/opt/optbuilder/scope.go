@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/memo"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/props/physical"
@@ -547,7 +548,7 @@ func (s *scope) startAggFunc() *scope {
 // are only used in a groupings scope.
 func (s *scope) endAggFunc(cols opt.ColSet) (aggInScope, aggOutScope *scope) {
 	if !s.groupby.inAgg {
-		panic(pgerror.AssertionFailedf("mismatched calls to start/end aggFunc"))
+		panic(errors.AssertionFailedf("mismatched calls to start/end aggFunc"))
 	}
 	s.groupby.inAgg = false
 
@@ -563,7 +564,7 @@ func (s *scope) endAggFunc(cols opt.ColSet) (aggInScope, aggOutScope *scope) {
 		}
 	}
 
-	panic(pgerror.AssertionFailedf("aggregate function is not allowed in this context"))
+	panic(errors.AssertionFailedf("aggregate function is not allowed in this context"))
 }
 
 // startBuildingGroupingCols is called when the builder starts building the
@@ -584,7 +585,7 @@ func (s *scope) startBuildingGroupingCols() {
 // to ensure that a grouping error is not called prematurely.
 func (s *scope) endBuildingGroupingCols() {
 	if !s.groupby.buildingGroupingCols {
-		panic(pgerror.AssertionFailedf("mismatched calls to start/end groupings"))
+		panic(errors.AssertionFailedf("mismatched calls to start/end groupings"))
 	}
 	s.groupby.buildingGroupingCols = false
 }
@@ -1209,7 +1210,7 @@ var _ tree.IndexedVarContainer = &scope{}
 
 // IndexedVarEval is part of the IndexedVarContainer interface.
 func (s *scope) IndexedVarEval(idx int, ctx *tree.EvalContext) (tree.Datum, error) {
-	panic(pgerror.AssertionFailedf("unimplemented: scope.IndexedVarEval"))
+	panic(errors.AssertionFailedf("unimplemented: scope.IndexedVarEval"))
 }
 
 // IndexedVarResolvedType is part of the IndexedVarContainer interface.
@@ -1227,7 +1228,7 @@ func (s *scope) IndexedVarResolvedType(idx int) *types.T {
 
 // IndexedVarNodeFormatter is part of the IndexedVarContainer interface.
 func (s *scope) IndexedVarNodeFormatter(idx int) tree.NodeFormatter {
-	panic(pgerror.AssertionFailedf("unimplemented: scope.IndexedVarNodeFormatter"))
+	panic(errors.AssertionFailedf("unimplemented: scope.IndexedVarNodeFormatter"))
 }
 
 // newAmbiguousColumnError returns an error with a helpful error message to be

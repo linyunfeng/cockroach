@@ -20,7 +20,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/keys"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/privilege"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
@@ -179,7 +178,7 @@ func (n *relocateNode) Next(params runParams) (bool, error) {
 				if err := params.extendedEvalCtx.ExecCfg.Gossip.GetInfoProto(
 					gossipStoreKey, &storeDesc,
 				); err != nil {
-					return false, pgerror.NewAssertionErrorWithWrappedErrf(err,
+					return false, errors.NewAssertionErrorWithWrappedErrf(err,
 						"error looking up store %d", log.Safe(storeID))
 				}
 				nodeID = storeDesc.Node.NodeID

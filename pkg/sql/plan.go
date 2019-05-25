@@ -15,6 +15,7 @@ package sql
 import (
 	"context"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
 	"github.com/cockroachdb/cockroach/pkg/sql/delegate"
 	"github.com/cockroachdb/cockroach/pkg/sql/parser"
@@ -735,7 +736,7 @@ func (p *planner) newPlan(
 		if newStmt != nil {
 			return p.newPlan(ctx, newStmt, nil /* desiredTypes */)
 		}
-		return nil, pgerror.AssertionFailedf("unknown statement type: %T", stmt)
+		return nil, errors.AssertionFailedf("unknown statement type: %T", stmt)
 	}
 }
 

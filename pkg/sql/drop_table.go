@@ -16,6 +16,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/jobs"
 	"github.com/cockroachdb/cockroach/pkg/jobs/jobspb"
 	"github.com/cockroachdb/cockroach/pkg/keys"
@@ -26,7 +27,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/timeutil"
-	"github.com/pkg/errors"
 )
 
 type dropTableNode struct {
@@ -388,7 +388,7 @@ func (p *planner) initiateDropTable(
 		}
 
 		if err := job.WithTxn(p.txn).Succeeded(ctx, jobs.NoopFn); err != nil {
-			return pgerror.NewAssertionErrorWithWrappedErrf(err,
+			return errors.NewAssertionErrorWithWrappedErrf(err,
 				"failed to mark job %d as as successful", log.Safe(jobID))
 		}
 	}

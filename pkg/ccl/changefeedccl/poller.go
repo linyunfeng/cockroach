@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/cockroachdb/cockroach/pkg/ccl/utilccl/intervalccl"
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/gossip"
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/jobs/jobspb"
@@ -23,7 +24,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
 	"github.com/cockroachdb/cockroach/pkg/settings/cluster"
 	"github.com/cockroachdb/cockroach/pkg/sql"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/storage"
 	"github.com/cockroachdb/cockroach/pkg/storage/engine"
@@ -34,7 +34,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/mon"
 	"github.com/cockroachdb/cockroach/pkg/util/syncutil"
 	"github.com/cockroachdb/cockroach/pkg/util/timeutil"
-	"github.com/pkg/errors"
 )
 
 // poller uses ExportRequest with the `ReturnSST` to repeatedly fetch every kv
@@ -625,7 +624,7 @@ func allRangeDescriptors(ctx context.Context, txn *client.Txn) ([]roachpb.RangeD
 	rangeDescs := make([]roachpb.RangeDescriptor, len(rows))
 	for i, row := range rows {
 		if err := row.ValueProto(&rangeDescs[i]); err != nil {
-			return nil, pgerror.NewAssertionErrorWithWrappedErrf(err,
+			return nil, errors.NewAssertionErrorWithWrappedErrf(err,
 				"%s: unable to unmarshal range descriptor", row.Key)
 		}
 	}
@@ -658,7 +657,7 @@ func (p *poller) validateTable(ctx context.Context, desc *sqlbase.TableDescripto
 			// interesting here.
 			if p.details.StatementTime.Less(boundaryTime) {
 				if boundaryTime.Less(p.mu.highWater) {
-					return pgerror.AssertionFailedf(
+					return errors.AssertionFailedf(
 						"error: detected table ID %d backfill completed at %s "+
 							"earlier than highwater timestamp %s",
 						log.Safe(desc.ID),

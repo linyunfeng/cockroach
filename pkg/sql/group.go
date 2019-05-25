@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/builtins"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
@@ -496,7 +497,7 @@ func (v *extractAggregatesVisitor) VisitPre(expr tree.Expr) (recurse bool, newEx
 						var err error
 						arguments[i-1], err = t.Exprs[i].(tree.TypedExpr).Eval(evalContext)
 						if err != nil {
-							v.err = pgerror.AssertionFailedf("can't evaluate %s - %v", t.Exprs[i].String(), err)
+							v.err = errors.AssertionFailedf("can't evaluate %s - %v", t.Exprs[i].String(), err)
 							return false, expr
 						}
 					}

@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/keys"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
@@ -28,7 +29,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/arith"
 	"github.com/cockroachdb/cockroach/pkg/util/duration"
 	"github.com/cockroachdb/cockroach/pkg/util/json"
-	"github.com/pkg/errors"
 )
 
 // See the comments at the start of generators.go for details about
@@ -211,7 +211,7 @@ func makeGeneratorOverload(
 }
 
 func newUnsuitableUseOfGeneratorError() error {
-	return pgerror.AssertionFailedf("generator functions cannot be evaluated as scalars")
+	return errors.AssertionFailedf("generator functions cannot be evaluated as scalars")
 }
 
 func makeGeneratorOverloadWithReturnType(

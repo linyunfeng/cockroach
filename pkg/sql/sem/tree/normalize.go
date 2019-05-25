@@ -13,7 +13,7 @@
 package tree
 
 import (
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util/json"
 )
@@ -804,7 +804,7 @@ func invertComparisonOp(op ComparisonOperator) (ComparisonOperator, error) {
 	case LT:
 		return GT, nil
 	default:
-		return op, pgerror.AssertionFailedf("unable to invert: %s", op)
+		return op, errors.AssertionFailedf("unable to invert: %s", op)
 	}
 }
 

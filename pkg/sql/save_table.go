@@ -16,6 +16,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 )
@@ -57,7 +58,7 @@ func (n *saveTableNode) startExec(params runParams) error {
 
 	cols := planColumns(n.source)
 	if len(n.colNames) != len(cols) {
-		return pgerror.AssertionFailedf(
+		return errors.AssertionFailedf(
 			"number of column names (%d) does not match number of columns (%d)",
 			len(n.colNames), len(cols),
 		)

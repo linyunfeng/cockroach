@@ -18,11 +18,11 @@ import (
 	"math"
 	"sort"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
 	"github.com/cockroachdb/cockroach/pkg/settings"
 	"github.com/cockroachdb/cockroach/pkg/sql/distsqlpb"
 	"github.com/cockroachdb/cockroach/pkg/sql/distsqlplan"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/util/encoding"
@@ -47,7 +47,7 @@ func (dsp *DistSQLPlanner) tryCreatePlanForInterleavedJoin(
 	// We know they are scan nodes from useInterleaveJoin, but we add
 	// this check to prevent future panics.
 	if !leftOk || !rightOk {
-		return PhysicalPlan{}, false, pgerror.AssertionFailedf("left and right children of join node must be scan nodes to execute an interleaved join")
+		return PhysicalPlan{}, false, errors.AssertionFailedf("left and right children of join node must be scan nodes to execute an interleaved join")
 	}
 
 	// We iterate through each table and collate their metadata for

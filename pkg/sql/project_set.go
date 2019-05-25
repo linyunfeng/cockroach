@@ -15,7 +15,7 @@ package sql
 import (
 	"context"
 
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/builtins"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
@@ -83,7 +83,7 @@ func (p *planner) ProjectSet(
 	exprs ...tree.Expr,
 ) (planDataSource, error) {
 	if len(exprs) == 0 {
-		return planDataSource{}, pgerror.AssertionFailedf("ProjectSet invoked with no projected expression")
+		return planDataSource{}, errors.AssertionFailedf("ProjectSet invoked with no projected expression")
 	}
 
 	srcCols := sourceInfo.SourceColumns

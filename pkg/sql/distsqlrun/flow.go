@@ -16,6 +16,7 @@ import (
 	"context"
 	"sync"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/gossip"
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/jobs"
@@ -23,7 +24,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/rpc/nodedialer"
 	"github.com/cockroachdb/cockroach/pkg/settings/cluster"
 	"github.com/cockroachdb/cockroach/pkg/sql/distsqlpb"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sessiondata"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
@@ -34,8 +34,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/mon"
 	"github.com/cockroachdb/cockroach/pkg/util/stop"
-	"github.com/opentracing/opentracing-go"
-	"github.com/pkg/errors"
+	opentracing "github.com/opentracing/opentracing-go"
 )
 
 // FlowCtx encompasses the contexts needed for various flow components.
@@ -607,7 +606,7 @@ func (f *Flow) Run(ctx context.Context, doneFn func()) error {
 	// We'll take care of the last processor in particular.
 	var headProc Processor
 	if len(f.processors) == 0 {
-		return pgerror.AssertionFailedf("no processors in flow")
+		return errors.AssertionFailedf("no processors in flow")
 	}
 	headProc = f.processors[len(f.processors)-1]
 	f.processors = f.processors[:len(f.processors)-1]

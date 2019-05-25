@@ -15,7 +15,7 @@ package tree
 import (
 	"time"
 
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 )
 
@@ -37,7 +37,7 @@ func ParseStringAs(t *types.T, s string, evalCtx *EvalContext) (Datum, error) {
 	default:
 		d, err = parseStringAs(t, s, evalCtx)
 		if d == nil && err == nil {
-			return nil, pgerror.AssertionFailedf("unknown type %s (%T)", t, t)
+			return nil, errors.AssertionFailedf("unknown type %s (%T)", t, t)
 		}
 	}
 	return d, err

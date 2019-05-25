@@ -17,15 +17,14 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/jobs"
 	"github.com/cockroachdb/cockroach/pkg/jobs/jobspb"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
-	"github.com/pkg/errors"
 )
 
 //
@@ -820,7 +819,7 @@ func (p *planner) writeTableDescToBatch(
 	b *client.Batch,
 ) error {
 	if tableDesc.IsVirtualTable() {
-		return pgerror.AssertionFailedf("virtual descriptors cannot be stored, found: %v", tableDesc)
+		return errors.AssertionFailedf("virtual descriptors cannot be stored, found: %v", tableDesc)
 	}
 
 	if tableDesc.IsNewTable() {
@@ -845,7 +844,7 @@ func (p *planner) writeTableDescToBatch(
 	}
 
 	if err := tableDesc.ValidateTable(p.extendedEvalCtx.Settings); err != nil {
-		return pgerror.AssertionFailedf("table descriptor is not valid: %s\n%v", err, tableDesc)
+		return errors.AssertionFailedf("table descriptor is not valid: %s\n%v", err, tableDesc)
 	}
 
 	if err := p.Tables().addUncommittedTable(*tableDesc); err != nil {

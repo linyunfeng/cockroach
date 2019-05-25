@@ -13,8 +13,8 @@
 package sqlsmith
 
 import (
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/parser"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 )
@@ -22,7 +22,7 @@ import (
 func typeFromName(name string) *types.T {
 	typ, err := parser.ParseType(name)
 	if err != nil {
-		panic(pgerror.AssertionFailedf("failed to parse type: %v", name))
+		panic(errors.AssertionFailedf("failed to parse type: %v", name))
 	}
 	return typ
 }

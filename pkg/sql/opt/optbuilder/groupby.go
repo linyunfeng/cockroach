@@ -38,6 +38,7 @@ package optbuilder
 //   post-projection: 1 + col3
 
 import (
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/memo"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
@@ -110,7 +111,7 @@ func (a *aggregateInfo) TypeCheck(ctx *tree.SemaContext, desired *types.T) (tree
 
 // Eval is part of the tree.TypedExpr interface.
 func (a *aggregateInfo) Eval(_ *tree.EvalContext) (tree.Datum, error) {
-	panic(pgerror.AssertionFailedf("aggregateInfo must be replaced before evaluation"))
+	panic(errors.AssertionFailedf("aggregateInfo must be replaced before evaluation"))
 }
 
 var _ tree.Expr = &aggregateInfo{}
@@ -141,7 +142,7 @@ func (b *Builder) constructGroupBy(
 			if scalar == nil {
 				// A "pass through" column (i.e. a VariableOp) is not legal as an
 				// aggregation.
-				panic(pgerror.AssertionFailedf("variable as aggregation"))
+				panic(errors.AssertionFailedf("variable as aggregation"))
 			}
 			aggs = append(aggs, memo.AggregationsItem{
 				Agg:        scalar,
@@ -584,7 +585,7 @@ func (b *Builder) constructAggregate(name string, args []opt.ScalarExpr) opt.Sca
 		}
 		return b.factory.ConstructStringAgg(args[0], args[1])
 	}
-	panic(pgerror.AssertionFailedf("unhandled aggregate: %s", name))
+	panic(errors.AssertionFailedf("unhandled aggregate: %s", name))
 }
 
 func isAggregate(def *tree.FunctionDefinition) bool {

@@ -28,6 +28,7 @@ import (
 	"fmt"
 	"unicode/utf8"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sessiondata"
 	"github.com/cockroachdb/cockroach/pkg/util/stringencoding"
@@ -335,7 +336,7 @@ func DecodeRawBytesToByteArray(data string, be sessiondata.BytesEncodeFormat) ([
 		return base64.StdEncoding.DecodeString(data)
 
 	default:
-		return nil, pgerror.AssertionFailedf("unhandled format: %s", be)
+		return nil, errors.AssertionFailedf("unhandled format: %s", be)
 	}
 }
 

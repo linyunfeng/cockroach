@@ -19,6 +19,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util"
@@ -184,7 +185,7 @@ func (p *PlaceholderInfo) Assign(src *PlaceholderInfo, numPlaceholders int) erro
 
 func checkPlaceholderArity(numTypes, numPlaceholders int) error {
 	if numTypes > numPlaceholders {
-		return pgerror.AssertionFailedf(
+		return errors.AssertionFailedf(
 			"unexpected placeholder types: got %d, expected %d",
 			numTypes, numPlaceholders)
 	} else if numTypes < numPlaceholders {

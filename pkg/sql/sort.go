@@ -15,13 +15,13 @@ package sql
 import (
 	"context"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util/encoding"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
-	"github.com/pkg/errors"
 )
 
 // sortNode represents a node that sorts the rows returned by its
@@ -366,7 +366,7 @@ func (p *planner) rewriteIndexOrderings(
 			for _, id := range idxDesc.ExtraColumnIDs {
 				col, err := desc.FindColumnByID(id)
 				if err != nil {
-					return nil, pgerror.AssertionFailedf("column with ID %d not found", id)
+					return nil, errors.AssertionFailedf("column with ID %d not found", id)
 				}
 
 				newOrderBy = append(newOrderBy, &tree.Order{

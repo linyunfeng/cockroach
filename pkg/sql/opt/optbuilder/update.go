@@ -15,6 +15,7 @@ package optbuilder
 import (
 	"fmt"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/cat"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/memo"
@@ -131,7 +132,7 @@ func (b *Builder) buildUpdate(upd *tree.Update, inScope *scope) (outScope *scope
 // exactly as many columns as are expected by the named SET columns.
 func (mb *mutationBuilder) addTargetColsForUpdate(exprs tree.UpdateExprs) {
 	if len(mb.targetColList) != 0 {
-		panic(pgerror.AssertionFailedf("addTargetColsForUpdate cannot be called more than once"))
+		panic(errors.AssertionFailedf("addTargetColsForUpdate cannot be called more than once"))
 	}
 
 	for _, expr := range exprs {

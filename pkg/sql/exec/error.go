@@ -19,10 +19,10 @@ import (
 	"runtime/debug"
 	"strings"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/exec/coldata"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
-	"github.com/pkg/errors"
 )
 
 const panicLineSubstring = "runtime/panic.go"
@@ -60,7 +60,7 @@ func CatchVectorizedRuntimeError(operation func()) (retErr error) {
 						retErr = e
 					} else {
 						// Not an error object. Definitely unexpected.
-						retErr = pgerror.AssertionFailedf("unexpected error from the vectorized runtime: %v", err)
+						retErr = errors.AssertionFailedf("unexpected error from the vectorized runtime: %v", err)
 					}
 				} else {
 					// Do not recover from the panic not related to the vectorized

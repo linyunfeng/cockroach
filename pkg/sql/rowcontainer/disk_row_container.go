@@ -15,6 +15,7 @@ package rowcontainer
 import (
 	"context"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
@@ -257,7 +258,7 @@ func (d *DiskRowContainer) keyValToRow(k []byte, v []byte) (sqlbase.EncDatumRow,
 		col := orderInfo.ColIdx
 		d.scratchEncRow[col], k, err = sqlbase.EncDatumFromBuffer(&d.types[col], d.encodings[i], k)
 		if err != nil {
-			return nil, pgerror.NewAssertionErrorWithWrappedErrf(err,
+			return nil, errors.NewAssertionErrorWithWrappedErrf(err,
 				"unable to decode row, column idx %d", log.Safe(col))
 		}
 	}
@@ -265,7 +266,7 @@ func (d *DiskRowContainer) keyValToRow(k []byte, v []byte) (sqlbase.EncDatumRow,
 		var err error
 		d.scratchEncRow[i], v, err = sqlbase.EncDatumFromBuffer(&d.types[i], sqlbase.DatumEncoding_VALUE, v)
 		if err != nil {
-			return nil, pgerror.NewAssertionErrorWithWrappedErrf(err,
+			return nil, errors.NewAssertionErrorWithWrappedErrf(err,
 				"unable to decode row, value idx %d", log.Safe(i))
 		}
 	}
@@ -300,9 +301,9 @@ func (d *DiskRowContainer) NewIterator(ctx context.Context) RowIterator {
 // until the next call to Row().
 func (r *diskRowIterator) Row() (sqlbase.EncDatumRow, error) {
 	if ok, err := r.Valid(); err != nil {
-		return nil, pgerror.NewAssertionErrorWithWrappedErrf(err, "unable to check row validity")
+		return nil, errors.NewAssertionErrorWithWrappedErrf(err, "unable to check row validity")
 	} else if !ok {
-		return nil, pgerror.AssertionFailedf("invalid row")
+		return nil, errors.AssertionFailedf("invalid row")
 	}
 
 	return r.rowContainer.keyValToRow(r.Key(), r.Value())

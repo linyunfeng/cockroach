@@ -318,7 +318,7 @@ func allocateTableRewrites(
 				{
 					parentDB, err := sqlbase.GetDatabaseDescFromID(ctx, txn, parentID)
 					if err != nil {
-						return pgerror.NewAssertionErrorWithWrappedErrf(err,
+						return errors.NewAssertionErrorWithWrappedErrf(err,
 							"failed to lookup parent DB %d", log.Safe(parentID))
 					}
 
@@ -911,7 +911,7 @@ func WriteTableDescs(
 			} else {
 				parentDB, err := sqlbase.GetDatabaseDescFromID(ctx, txn, tables[i].ParentID)
 				if err != nil {
-					return pgerror.NewAssertionErrorWithWrappedErrf(err,
+					return errors.NewAssertionErrorWithWrappedErrf(err,
 						"failed to lookup parent DB %d", log.Safe(tables[i].ParentID))
 				}
 				// TODO(mberhault): CheckPrivilege wants a planner.
@@ -937,7 +937,7 @@ func WriteTableDescs(
 
 		for _, table := range tables {
 			if err := table.Validate(ctx, txn, settings); err != nil {
-				return pgerror.NewAssertionErrorWithWrappedErrf(err,
+				return errors.NewAssertionErrorWithWrappedErrf(err,
 					"validate table %d", log.Safe(table.ID))
 			}
 		}
@@ -990,12 +990,12 @@ func restoreJobDescription(
 func rewriteBackupSpanKey(kr *storageccl.KeyRewriter, key roachpb.Key) (roachpb.Key, error) {
 	newKey, rewritten, err := kr.RewriteKey(append([]byte(nil), key...))
 	if err != nil {
-		return nil, pgerror.NewAssertionErrorWithWrappedErrf(err,
+		return nil, errors.NewAssertionErrorWithWrappedErrf(err,
 			"could not rewrite span start key: %s", key)
 	}
 	if !rewritten && bytes.Equal(newKey, key) {
 		// if nothing was changed, we didn't match the top-level key at all.
-		return nil, pgerror.AssertionFailedf(
+		return nil, errors.AssertionFailedf(
 			"no rewrite for span start key: %s", key)
 	}
 	// Modify all spans that begin at the primary index to instead begin at the
@@ -1003,7 +1003,7 @@ func rewriteBackupSpanKey(kr *storageccl.KeyRewriter, key roachpb.Key) (roachpb.
 	// /Table/51. Otherwise a permanently empty span at /Table/51-/Table/51/1
 	// will be created.
 	if b, id, idx, err := sqlbase.DecodeTableIDIndexID(newKey); err != nil {
-		return nil, pgerror.NewAssertionErrorWithWrappedErrf(err,
+		return nil, errors.NewAssertionErrorWithWrappedErrf(err,
 			"could not rewrite span start key: %s", key)
 	} else if idx == 1 && len(b) == 0 {
 		newKey = keys.MakeTablePrefix(uint32(id))
@@ -1083,7 +1083,7 @@ func restore(
 	for i := range tables {
 		newDescBytes, err := protoutil.Marshal(sqlbase.WrapDescriptor(tables[i]))
 		if err != nil {
-			return mu.res, nil, nil, pgerror.NewAssertionErrorWithWrappedErrf(err,
+			return mu.res, nil, nil, errors.NewAssertionErrorWithWrappedErrf(err,
 				"marshaling descriptor")
 		}
 		rekeys = append(rekeys, roachpb.ImportRequest_TableRekey{

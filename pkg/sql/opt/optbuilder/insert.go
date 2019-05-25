@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/cat"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/memo"
@@ -367,7 +368,7 @@ func (mb *mutationBuilder) needExistingRows() bool {
 // list of table columns that are the target of the Insert operation.
 func (mb *mutationBuilder) addTargetNamedColsForInsert(names tree.NameList) {
 	if len(mb.targetColList) != 0 {
-		panic(pgerror.AssertionFailedf("addTargetNamedColsForInsert cannot be called more than once"))
+		panic(errors.AssertionFailedf("addTargetNamedColsForInsert cannot be called more than once"))
 	}
 
 	// Add target table columns by the names specified in the Insert statement.
@@ -485,7 +486,7 @@ func (mb *mutationBuilder) checkForeignKeysForInsert() {
 // columns.
 func (mb *mutationBuilder) addTargetTableColsForInsert(maxCols int) {
 	if len(mb.targetColList) != 0 {
-		panic(pgerror.AssertionFailedf("addTargetTableColsForInsert cannot be called more than once"))
+		panic(errors.AssertionFailedf("addTargetTableColsForInsert cannot be called more than once"))
 	}
 
 	// Only consider non-mutation columns, since mutation columns are hidden from

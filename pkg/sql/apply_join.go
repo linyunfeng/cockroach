@@ -15,12 +15,12 @@ package sql
 import (
 	"context"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/exec/execbuilder"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/memo"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/props/physical"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/xform"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/rowcontainer"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
@@ -114,9 +114,9 @@ func newApplyJoinNode(
 ) (planNode, error) {
 	switch joinType {
 	case sqlbase.JoinType_RIGHT_OUTER, sqlbase.JoinType_FULL_OUTER:
-		return nil, pgerror.AssertionFailedf("unsupported right outer apply join: %d", log.Safe(joinType))
+		return nil, errors.AssertionFailedf("unsupported right outer apply join: %d", log.Safe(joinType))
 	case sqlbase.JoinType_EXCEPT_ALL, sqlbase.JoinType_INTERSECT_ALL:
-		return nil, pgerror.AssertionFailedf("unsupported apply set op: %d", log.Safe(joinType))
+		return nil, errors.AssertionFailedf("unsupported apply set op: %d", log.Safe(joinType))
 	}
 
 	return &applyJoinNode{

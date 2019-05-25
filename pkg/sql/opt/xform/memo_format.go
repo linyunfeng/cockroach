@@ -17,10 +17,10 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/memo"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/props/physical"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/util/treeprinter"
 )
 
@@ -102,7 +102,7 @@ func (mf *memoFormatter) format() string {
 func (mf *memoFormatter) group(expr opt.Expr) int {
 	res, ok := mf.groupIdx[firstExpr(expr)]
 	if !ok {
-		panic(pgerror.AssertionFailedf("unknown group for %s", expr))
+		panic(errors.AssertionFailedf("unknown group for %s", expr))
 	}
 	return res
 }

@@ -16,8 +16,8 @@ import (
 	"bytes"
 	"context"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/roachpb"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/row"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
@@ -190,7 +190,7 @@ func (d *deleteRangeNode) startExec(params runParams) error {
 					return err
 				}
 				if !ok {
-					return pgerror.AssertionFailedf("key did not match descriptor")
+					return errors.AssertionFailedf("key did not match descriptor")
 				}
 				k := keyBytes[:len(keyBytes)-len(after)]
 				if !bytes.Equal(k, prev) {
