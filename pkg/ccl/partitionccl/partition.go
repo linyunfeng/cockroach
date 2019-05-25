@@ -83,7 +83,7 @@ func valueEncodePartitionTuple(
 			value = encoding.EncodeNonsortingUvarint(value, uint64(sqlbase.PartitionMaxVal))
 			continue
 		case *tree.Placeholder:
-			return nil, pgerror.UnimplementedWithIssuef(
+			return nil, errors.UnimplementedWithIssuef(
 				19464, "placeholders are not supported in PARTITION BY")
 		default:
 			// Fall-through.

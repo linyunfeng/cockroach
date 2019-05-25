@@ -15,18 +15,17 @@ import (
 	"strings"
 
 	"github.com/cockroachdb/cockroach/pkg/ccl/storageccl"
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/keys"
 	"github.com/cockroachdb/cockroach/pkg/settings/cluster"
 	"github.com/cockroachdb/cockroach/pkg/sql"
 	"github.com/cockroachdb/cockroach/pkg/sql/parser"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/row"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sessiondata"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -92,13 +91,13 @@ func MakeSimpleTableDescriptor(
 ) (*sqlbase.MutableTableDescriptor, error) {
 	create.HoistConstraints()
 	if create.IfNotExists {
-		return nil, pgerror.Unimplemented("import.if-no-exists", "unsupported IF NOT EXISTS")
+		return nil, errors.Unimplemented("import.if-no-exists", "unsupported IF NOT EXISTS")
 	}
 	if create.Interleave != nil {
-		return nil, pgerror.Unimplemented("import.interleave", "interleaved not supported")
+		return nil, errors.Unimplemented("import.interleave", "interleaved not supported")
 	}
 	if create.AsSource != nil {
-		return nil, pgerror.Unimplemented("import.create-as", "CREATE AS not supported")
+		return nil, errors.Unimplemented("import.create-as", "CREATE AS not supported")
 	}
 
 	filteredDefs := create.Defs[:0]
@@ -111,7 +110,7 @@ func MakeSimpleTableDescriptor(
 			// ignore
 		case *tree.ColumnTableDef:
 			if def.Computed.Expr != nil {
-				return nil, pgerror.Unimplementedf("import.computed", "computed columns not supported: %s", tree.AsString(def))
+				return nil, errors.Unimplementedf("import.computed", "computed columns not supported: %s", tree.AsString(def))
 			}
 
 			if err := sql.SimplifySerialInColumnDefWithRowID(ctx, def, &create.Table); err != nil {
@@ -120,7 +119,7 @@ func MakeSimpleTableDescriptor(
 
 		case *tree.ForeignKeyConstraintTableDef:
 			if !fks.allowed {
-				return nil, pgerror.Unimplemented("import.fk", "this IMPORT format does not support foreign keys")
+				return nil, errors.Unimplemented("import.fk", "this IMPORT format does not support foreign keys")
 			}
 			if fks.skip {
 				continue
@@ -129,7 +128,7 @@ func MakeSimpleTableDescriptor(
 			def.Table = tree.MakeUnqualifiedTableName(def.Table.TableName)
 
 		default:
-			return nil, pgerror.Unimplementedf(fmt.Sprintf("import.%T", def), "unsupported table definition: %s", tree.AsString(def))
+			return nil, errors.Unimplementedf(fmt.Sprintf("import.%T", def), "unsupported table definition: %s", tree.AsString(def))
 		}
 		// only append this def after we make it past the error checks and continues
 		filteredDefs = append(filteredDefs, create.Defs[i])

@@ -1616,7 +1616,7 @@ func setSessionVar(ctx *tree.EvalContext, settingName, newVal string, isLocal bo
 		return errors.AssertionFailedf("session accessor not set")
 	}
 	if isLocal {
-		return pgerror.UnimplementedWithIssuef(32562, "transaction-scoped settings are not supported")
+		return errors.UnimplementedWithIssuef(32562, "transaction-scoped settings are not supported")
 	}
 	return ctx.SessionAccessor.SetSessionVar(ctx.Context, settingName, newVal)
 }

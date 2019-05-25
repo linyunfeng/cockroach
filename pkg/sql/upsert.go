@@ -16,6 +16,7 @@ import (
 	"context"
 	"sync"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/row"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
@@ -582,7 +583,7 @@ func (p *planner) newUpsertHelper(
 					i++
 				}
 			} else {
-				return nil, pgerror.UnimplementedWithIssuef(8330,
+				return nil, errors.UnimplementedWithIssuef(8330,
 					"cannot use this type of expression on the right of UPDATE SET: %s", updateExpr.Expr)
 			}
 		} else {

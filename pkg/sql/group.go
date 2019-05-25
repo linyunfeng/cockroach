@@ -115,7 +115,7 @@ func (p *planner) groupBy(
 		return nil, nil, nil
 	}
 	if n.Having != nil && len(n.From.Tables) == 0 {
-		return nil, nil, pgerror.UnimplementedWithIssue(26349, "HAVING clause without FROM")
+		return nil, nil, errors.UnimplementedWithIssue(26349, "HAVING clause without FROM")
 	}
 
 	groupByExprs := make([]tree.Expr, len(n.GroupBy))
@@ -491,7 +491,7 @@ func (v *extractAggregatesVisitor) VisitPre(expr tree.Expr) (recurse bool, newEx
 					evalContext := v.planner.EvalContext()
 					for i := 1; i < len(t.Exprs); i++ {
 						if !tree.IsConst(evalContext, t.Exprs[i]) {
-							v.err = pgerror.UnimplementedWithIssue(28417, "aggregate functions with multiple non-constant expressions are not supported")
+							v.err = errors.UnimplementedWithIssue(28417, "aggregate functions with multiple non-constant expressions are not supported")
 							return false, expr
 						}
 						var err error

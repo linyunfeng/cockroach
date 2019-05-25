@@ -793,7 +793,7 @@ func checkResultType(typ *types.T) error {
 			// mixed signals -- that nested arrays appear to be supported
 			// in this case, and not in other cases (eg. CREATE). So we
 			// reject them in every case instead.
-			return pgerror.UnimplementedWithIssueDetail(32552,
+			return errors.UnimplementedWithIssueDetail(32552,
 				"result", "arrays cannot have arrays as element type")
 		}
 	case types.AnyFamily:

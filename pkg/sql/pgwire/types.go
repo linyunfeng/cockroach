@@ -26,7 +26,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/server/telemetry"
 	"github.com/cockroachdb/cockroach/pkg/sql/lex"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgwirebase"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sessiondata"
@@ -456,7 +455,7 @@ func (b *writeBuffer) writeBinaryDatum(
 
 	case *tree.DArray:
 		if v.ParamTyp.Family() == types.ArrayFamily {
-			b.setError(pgerror.UnimplementedWithIssueDetail(32552,
+			b.setError(errors.UnimplementedWithIssueDetail(32552,
 				"binenc", "unsupported binary serialization of multidimensional arrays"))
 			return
 		}

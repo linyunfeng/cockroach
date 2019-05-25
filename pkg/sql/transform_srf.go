@@ -16,7 +16,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sessiondata"
 )
@@ -204,7 +204,7 @@ func (v *srfExtractionVisitor) transformSRF(
 	srf *tree.FuncExpr, fd *tree.FunctionDefinition,
 ) (tree.Expr, error) {
 	if v.seenSRF > 1 {
-		return nil, pgerror.UnimplementedWithIssuef(26234, "nested set-returning functions")
+		return nil, errors.UnimplementedWithIssuef(26234, "nested set-returning functions")
 	}
 
 	// Create a unique name for this SRF. We need unique names so that

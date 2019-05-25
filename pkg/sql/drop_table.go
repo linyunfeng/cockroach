@@ -21,7 +21,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/jobs/jobspb"
 	"github.com/cockroachdb/cockroach/pkg/keys"
 	"github.com/cockroachdb/cockroach/pkg/settings/cluster"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/privilege"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
@@ -205,7 +204,7 @@ func (p *planner) canRemoveInterleave(
 	// non-public state for referential integrity of the `InterleaveDescriptor`
 	// pointers.
 	if behavior != tree.DropCascade {
-		return pgerror.UnimplementedWithIssuef(
+		return errors.UnimplementedWithIssuef(
 			8036, "%q is interleaved by table %q", from, table.Name)
 	}
 	return p.CheckPrivilege(ctx, table, privilege.CREATE)

@@ -58,7 +58,7 @@ func (p *planner) Update(
 ) (result planNode, resultErr error) {
 	// UX friendliness safeguard.
 	if n.Where == nil && p.SessionData().SafeUpdates {
-		return nil, pgerror.DangerousStatementf("UPDATE without WHERE clause")
+		return nil, errors.DangerousStatementf("UPDATE without WHERE clause")
 	}
 
 	// CTE analysis.
@@ -874,7 +874,7 @@ func (p *planner) namesForExprs(
 				n = len(t.D)
 			}
 			if n < 0 {
-				return nil, nil, pgerror.UnimplementedWithIssueDetailf(35713,
+				return nil, nil, errors.UnimplementedWithIssueDetailf(35713,
 					fmt.Sprintf("%T", expr.Expr),
 					"source for a multiple-column UPDATE item must be a sub-SELECT or ROW() expression; not supported: %T", expr.Expr)
 			}

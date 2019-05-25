@@ -399,7 +399,7 @@ func (vs *VirtualSchemaHolder) getVirtualTableEntry(tn *tree.TableName) (virtual
 			return t, nil
 		}
 		if _, ok := db.allTableNames[tableName]; ok {
-			return virtualDefEntry{}, pgerror.Unimplementedf(tn.Schema()+"."+tableName,
+			return virtualDefEntry{}, errors.Unimplementedf(tn.Schema()+"."+tableName,
 				"virtual schema table not implemented: %s.%s", tn.Schema(), tableName)
 		}
 		return virtualDefEntry{}, sqlbase.NewUndefinedRelationError(tn)

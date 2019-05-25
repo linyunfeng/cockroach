@@ -588,7 +588,7 @@ func (p *planner) newPlan(
 	canModifySchema := tree.CanModifySchema(stmt)
 	if canModifySchema {
 		if err := p.txn.SetSystemConfigTrigger(); err != nil {
-			return nil, pgerror.UnimplementedWithIssuef(26508,
+			return nil, errors.UnimplementedWithIssuef(26508,
 				"schema change statement cannot follow a statement that has written in the same transaction: %v", err)
 		}
 	}

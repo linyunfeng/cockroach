@@ -771,7 +771,7 @@ func extractInsertSource(
 				// (WITH ... (WITH ...))
 				// Currently we are unable to nest the scopes inside ParenSelect so we
 				// must refuse the syntax so that the query does not get invalid results.
-				return nil, nil, pgerror.UnimplementedWithIssue(24303,
+				return nil, nil, errors.UnimplementedWithIssue(24303,
 					"multiple WITH clauses in parentheses")
 			}
 			with = s.Select.With

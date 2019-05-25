@@ -253,7 +253,7 @@ func (ex *connExecutor) execStmtInOpenState(
 	case *tree.Savepoint:
 		// Ensure that the user isn't trying to run BEGIN; SAVEPOINT; SAVEPOINT;
 		if ex.state.activeSavepointName != "" {
-			err := pgerror.UnimplementedWithIssueDetail(10735, "nested", "SAVEPOINT may not be nested")
+			err := errors.UnimplementedWithIssueDetail(10735, "nested", "SAVEPOINT may not be nested")
 			return makeErrEvent(err)
 		}
 		if err := ex.validateSavepointName(s.Name); err != nil {
@@ -1334,7 +1334,7 @@ func (ex *connExecutor) validateSavepointName(savepoint tree.Name) error {
 			`SAVEPOINT %q is in use`, tree.ErrString(&ex.state.activeSavepointName))
 	}
 	if !ex.sessionData.ForceSavepointRestart && !strings.HasPrefix(string(savepoint), RestartSavepointName) {
-		return pgerror.UnimplementedWithIssueHint(10735,
+		return errors.UnimplementedWithIssueHint(10735,
 			"SAVEPOINT not supported except for "+RestartSavepointName,
 			"Retryable transactions with arbitrary SAVEPOINT names can be enabled "+
 				"with SET force_savepoint_restart=true")

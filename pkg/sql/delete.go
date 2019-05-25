@@ -16,7 +16,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/privilege"
 	"github.com/cockroachdb/cockroach/pkg/sql/row"
 	"github.com/cockroachdb/cockroach/pkg/sql/rowcontainer"
@@ -55,7 +55,7 @@ func (p *planner) Delete(
 ) (result planNode, resultErr error) {
 	// UX friendliness safeguard.
 	if n.Where == nil && p.SessionData().SafeUpdates {
-		return nil, pgerror.DangerousStatementf("DELETE without WHERE clause")
+		return nil, errors.DangerousStatementf("DELETE without WHERE clause")
 	}
 
 	// CTE analysis.

@@ -13,6 +13,7 @@
 package optbuilder
 
 import (
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt"
 	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/privilege"
@@ -32,7 +33,7 @@ import (
 func (b *Builder) buildDelete(del *tree.Delete, inScope *scope) (outScope *scope) {
 	// UX friendliness safeguard.
 	if del.Where == nil && b.evalCtx.SessionData.SafeUpdates {
-		panic(pgerror.DangerousStatementf("DELETE without WHERE clause"))
+		panic(errors.DangerousStatementf("DELETE without WHERE clause"))
 	}
 
 	if del.OrderBy != nil && del.Limit == nil {

@@ -103,7 +103,7 @@ func (n *alterTableNode) startExec(params runParams) error {
 		case *tree.AlterTableAddColumn:
 			d := t.ColumnDef
 			if d.HasFKConstraint() {
-				return pgerror.UnimplementedWithIssue(32917,
+				return errors.UnimplementedWithIssue(32917,
 					"adding a REFERENCES constraint while also adding a column via ALTER not supported")
 			}
 
@@ -236,7 +236,7 @@ func (n *alterTableNode) startExec(params runParams) error {
 					col, err := n.tableDesc.FindActiveColumnByName(string(colName))
 					if err != nil {
 						if _, dropped, inactiveErr := n.tableDesc.FindColumnByName(colName); inactiveErr == nil && !dropped {
-							return pgerror.UnimplementedWithIssue(32917,
+							return errors.UnimplementedWithIssue(32917,
 								"adding a REFERENCES constraint while the column is being added not supported")
 						}
 						return err
@@ -288,7 +288,7 @@ func (n *alterTableNode) startExec(params runParams) error {
 
 		case *tree.AlterTableDropColumn:
 			if params.SessionData().SafeUpdates {
-				return pgerror.DangerousStatementf("ALTER TABLE DROP COLUMN will remove all data in that column")
+				return errors.DangerousStatementf("ALTER TABLE DROP COLUMN will remove all data in that column")
 			}
 
 			col, dropped, err := n.tableDesc.FindColumnByName(t.Column)
@@ -771,7 +771,7 @@ func applyColumnMutation(
 		case schemachange.ColumnConversionTrivial:
 			col.Type = *typ
 		default:
-			return pgerror.UnimplementedWithIssueDetail(9851,
+			return errors.UnimplementedWithIssueDetail(9851,
 				fmt.Sprintf("%s->%s", col.Type.SQLString(), typ.SQLString()),
 				"type conversion not yet implemented")
 		}

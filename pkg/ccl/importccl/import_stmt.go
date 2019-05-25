@@ -333,7 +333,7 @@ func importPlanHook(
 			}
 			format.PgDump.MaxRowSize = maxRowSize
 		default:
-			return pgerror.Unimplementedf("import.format", "unsupported import format: %q", importStmt.FileFormat)
+			return errors.Unimplementedf("import.format", "unsupported import format: %q", importStmt.FileFormat)
 		}
 
 		if format.Format != roachpb.IOFileFormat_CSV {
@@ -378,7 +378,7 @@ func importPlanHook(
 				}
 			}
 			if !found {
-				return pgerror.Unimplementedf("import.compression", "unsupported compression value: %q", override)
+				return errors.Unimplementedf("import.compression", "unsupported compression value: %q", override)
 			}
 		}
 

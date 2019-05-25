@@ -528,7 +528,7 @@ func (b *Builder) buildCTE(ctes []*tree.CTE, inScope *scope) (outScope *scope) {
 func (b *Builder) checkCTEUsage(inScope *scope) {
 	for alias, source := range inScope.ctes {
 		if !source.used && source.expr.Relational().CanMutate {
-			panic(pgerror.UnimplementedWithIssuef(24307,
+			panic(errors.UnimplementedWithIssuef(24307,
 				"common table expression %q with side effects was not used in query", alias))
 		}
 	}
@@ -581,7 +581,7 @@ func (b *Builder) buildSelect(
 				// (WITH ... (WITH ...))
 				// Currently we are unable to nest the scopes inside ParenSelect so we
 				// must refuse the syntax so that the query does not get invalid results.
-				panic(pgerror.UnimplementedWithIssue(24303, "multiple WITH clauses in parentheses"))
+				panic(errors.UnimplementedWithIssue(24303, "multiple WITH clauses in parentheses"))
 			}
 			with = s.Select.With
 		}

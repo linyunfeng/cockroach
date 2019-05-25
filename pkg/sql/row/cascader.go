@@ -231,7 +231,7 @@ func spanForIndexValues(
 		}
 
 	case sqlbase.ForeignKeyReference_PARTIAL:
-		return roachpb.Span{}, pgerror.UnimplementedWithIssue(20305, "MATCH PARTIAL not supported")
+		return roachpb.Span{}, errors.UnimplementedWithIssue(20305, "MATCH PARTIAL not supported")
 
 	default:
 		return roachpb.Span{}, errors.AssertionFailedf("unknown composite key match type: %v", match)

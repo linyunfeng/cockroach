@@ -84,7 +84,7 @@ outer:
 			}
 
 		case sqlbase.ForeignKeyReference_PARTIAL:
-			return pgerror.UnimplementedWithIssue(20305, "MATCH PARTIAL not supported")
+			return errors.UnimplementedWithIssue(20305, "MATCH PARTIAL not supported")
 
 		default:
 			return errors.AssertionFailedf("unknown composite key match type: %v", fk.ref.Match)

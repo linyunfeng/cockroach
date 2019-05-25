@@ -201,7 +201,7 @@ func validateArrayDimensions(nDimensions int, nElements int) error {
 		}
 		fallthrough
 	default:
-		return pgerror.UnimplementedWithIssuef(32552,
+		return errors.UnimplementedWithIssuef(32552,
 			"%d-dimension arrays not supported; only 1-dimension", nDimensions)
 	}
 	return nil

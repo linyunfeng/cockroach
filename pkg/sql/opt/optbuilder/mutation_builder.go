@@ -782,7 +782,7 @@ func getAliasedTableName(n tree.TableExpr) (*tree.TableName, *tree.TableName) {
 	}
 	tn, ok := n.(*tree.TableName)
 	if !ok {
-		panic(pgerror.Unimplemented(
+		panic(errors.Unimplemented(
 			"complex table expression in UPDATE/DELETE",
 			"cannot use a complex table name with DELETE/UPDATE"))
 	}

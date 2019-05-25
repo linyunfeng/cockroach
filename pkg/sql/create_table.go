@@ -20,6 +20,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/keys"
 	"github.com/cockroachdb/cockroach/pkg/settings/cluster"
@@ -33,7 +34,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
 	"github.com/lib/pq/oid"
-	"github.com/pkg/errors"
 )
 
 type createTableNode struct {
@@ -739,7 +739,7 @@ func addInterleave(
 	interleave *tree.InterleaveDef,
 ) error {
 	if interleave.DropBehavior != tree.DropDefault {
-		return pgerror.UnimplementedWithIssuef(
+		return errors.UnimplementedWithIssuef(
 			7854, "unsupported shorthand %s", interleave.DropBehavior)
 	}
 
@@ -1108,7 +1108,7 @@ func MakeTableDesc(
 				return desc, err
 			}
 			if d.Interleave != nil {
-				return desc, pgerror.UnimplementedWithIssue(9148, "use CREATE INDEX to make interleaved indexes")
+				return desc, errors.UnimplementedWithIssue(9148, "use CREATE INDEX to make interleaved indexes")
 			}
 		case *tree.UniqueConstraintTableDef:
 			idx := sqlbase.IndexDescriptor{
@@ -1136,7 +1136,7 @@ func MakeTableDesc(
 				}
 			}
 			if d.Interleave != nil {
-				return desc, pgerror.UnimplementedWithIssue(9148, "use CREATE INDEX to make interleaved indexes")
+				return desc, errors.UnimplementedWithIssue(9148, "use CREATE INDEX to make interleaved indexes")
 			}
 		case *tree.CheckConstraintTableDef, *tree.ForeignKeyConstraintTableDef, *tree.FamilyTableDef:
 			// pass, handled below.

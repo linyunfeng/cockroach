@@ -16,6 +16,7 @@ import (
 	"context"
 
 	"github.com/cockroachdb/cockroach/pkg/config"
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/internal/client"
 	"github.com/cockroachdb/cockroach/pkg/jobs/jobspb"
 	"github.com/cockroachdb/cockroach/pkg/keys"
@@ -46,7 +47,7 @@ func (p *planner) DropDatabase(ctx context.Context, n *tree.DropDatabase) (planN
 	}
 
 	if string(n.Name) == p.SessionData().Database && p.SessionData().SafeUpdates {
-		return nil, pgerror.DangerousStatementf("DROP DATABASE on current database")
+		return nil, errors.DangerousStatementf("DROP DATABASE on current database")
 	}
 
 	// Check that the database exists.
@@ -78,7 +79,7 @@ func (p *planner) DropDatabase(ctx context.Context, n *tree.DropDatabase) (planN
 			// The default is CASCADE, however be cautious if CASCADE was
 			// not specified explicitly.
 			if p.SessionData().SafeUpdates {
-				return nil, pgerror.DangerousStatementf(
+				return nil, errors.DangerousStatementf(
 					"DROP DATABASE on non-empty database without explicit CASCADE")
 			}
 		}

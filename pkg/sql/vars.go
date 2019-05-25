@@ -157,7 +157,7 @@ var varGen = map[string]sessionVar{
 			case "utf8", "unicode", "cp65001":
 				return nil
 			default:
-				return pgerror.Unimplementedf("client_encoding "+encoding,
+				return errors.Unimplementedf("client_encoding "+encoding,
 					"unimplemented client encoding: %q", encoding)
 			}
 		},
@@ -180,7 +180,7 @@ var varGen = map[string]sessionVar{
 			}
 
 			if len(dbName) == 0 && evalCtx.SessionData.SafeUpdates {
-				return "", pgerror.DangerousStatementf("SET database to empty string")
+				return "", errors.DangerousStatementf("SET database to empty string")
 			}
 
 			if len(dbName) != 0 {
@@ -551,7 +551,7 @@ var varGen = map[string]sessionVar{
 					// TODO(knz): if/when we want to support this, we'll need to change
 					// the interface between GetStringVal() and Set() to take string
 					// arrays instead of a single string.
-					return "", pgerror.Unimplementedf("schema names containing commas in search_path",
+					return "", errors.Unimplementedf("schema names containing commas in search_path",
 						"schema name %q not supported in search_path", s)
 				}
 				buf.WriteString(comma)
@@ -906,7 +906,7 @@ func getSingleBool(
 
 func getSessionVar(name string, missingOk bool) (bool, sessionVar, error) {
 	if _, ok := UnsupportedVars[name]; ok {
-		return false, sessionVar{}, pgerror.Unimplementedf("set."+name,
+		return false, sessionVar{}, errors.Unimplementedf("set."+name,
 			"the configuration setting %q is not supported", name)
 	}
 
